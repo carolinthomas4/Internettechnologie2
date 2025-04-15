@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound-Memories</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+	<style>
+/* Karte */	
+    	html, body, #map {
+			height: 100%;
+    		width: 100%;	
+    		margin: 0;
+    		padding: 0;
+		}
+	</style>
+	
+</head>
+<body>
+<!-- Einbindung der Karte -->
+		<div id="map"></div>
+    	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Einbindung Leaflet-Bibliothek -->
+	<script>
+    // Bildgröße in Pixeln
+    	const imageWidth = 1600; 
+		const imageHeight = 1060; 
+
+    // Initialisierung Leaflet-Karte 
+    	const map = L.map('map', {
+        	crs: L.CRS.Simple,  // Welches Koordinatensystem wird verwendet
+        	minZoom: -2,        // Herauszoomen (Begrenzung)
+        	maxZoom: 5,         // Maximale Zoom-Stufe
+        	zoomSnap: 0.5       // Smoother Zoom
+    	});
+
+    // Text in rechter Ecke bearbeiten/entfernen
+    	map.attributionControl.setPrefix('IT2:)');
+    
+    // Zoom-Button + und - entfernen
+    	map.zoomControl.remove();
+
+    // Definition der Bildgrenzen
+    	const southWest = map.unproject([0, imageHeight], map.getMaxZoom());
+    	const northEast = map.unproject([imageWidth, 0], map.getMaxZoom());
+    	const bounds = new L.LatLngBounds(southWest, northEast);
+
+    // Bild als Overlay hinzufügen
+    	L.imageOverlay('Jade-Hochschule.jpg', bounds).addTo(map);
+    
+    // Karte auf Bildgrenzen einstellen
+    	map.fitBounds(bounds);
+
+    // Minimalen Zoom festlegen nach 'fit bounds'
+    	const minZoom = map.getZoom();
+    	map.setMinZoom(minZoom); 
+	// Maximaler Zoom
+    	map.setMaxZoom(10); 
+    
+    // Karte kann nicht über die Bildgrenzen verschoben werden
+    	map.setMaxBounds(bounds);
+	</script>
+	
+
+<!-- Punkte setzen -->
+		<div id="popupForm" style="
+			display: none;
+			position: absolute;
+			background: white;
+			padding: 15px;
+			border-radius: 10px;
+			border: 1px solid #ccc;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			z-index: 1000;
+			font-family: sans-serif;
+			height: 300px;
+			width: 330px;
+		">
+		<h3 style="margin-top: 0;">Erinnerung erstellen</h3>
+
+		<label for="markerTitle">Titel:</label><br>
+		<input type="text" id="markerTitle" style="width: 100%; margin-bottom: 10px;"><br>
+
+		<label for="markerText">Beschreibung:</label><br>
+		<textarea id="markerTitle" style="width: 100%; height: 130px; resize: none;" maxlength="500" placeholder="Max. 500 Zeichen"></textarea><br>
+
+		<button onclick="submitMarker()" style="
+			background-color: #ffffff;
+			color: black;
+			padding: 8px 14px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			position: absolute;
+			bottom: 10px;
+			right: 10px;
+		">
+			💾Erinnerung speichern
+		</button>
+	<script>
+		//Punkt-Aussehen:)
+		const customIcon = L.icon({
+    		iconUrl: 'Roter-punkt.png',  
+    		iconSize: [32, 32],        // Größe des Icons
+			iconAnchor: [16, 32],      // Wo Blase sitzt
+    		popupAnchor: [0, -32]      // Wo Popup erscheint
+		});
+	
+
+		let clickCoords;
+		map.on('contextmenu', function(e) {
+    		clickCoords = e.latlng;
+    		const form = document.getElementById('popupForm');
+
+    		form.style.left = e.originalEvent.pageX + 'px';
+    		form.style.top = e.originalEvent.pageY + 'px';
+    		form.style.display = 'block';
+
+    		adjustPopupPosition(form);  // Popup positionieren
+		});
+	
+		function submitMarker() {
+			const title = document.getElementById('markerTitle').value;
+			const text = document.getElementById('markerText').value;
+
+			const popupContent = `<strong>${title}</strong><br>${text}`;
+
+			L.marker(clickCoords, { icon: customIcon }).addTo(map)
+				.bindPopup(popupContent)
+				.openPopup();
+		document.addEventListener('keydown', function(e) {
+			const formVisible = document.getElementById('popupForm').style.display === 'block';
+			if (formVisible && e.key === 'Enter') {
+				e.preventDefault(); // Verhindert, dass Enter einen Zeilenumbruch im Textfeld macht
+				submitMarker();
+			}
+		});
+    // Formular wieder ausblenden & resetten
+    	document.getElementById('popupForm').style.display = 'none';
+    	document.getElementById('markerTitle').value = '';
+		}
+	// Funktion, um das Formular innerhalb des Bildschirms zu positionieren
+		function adjustPopupPosition(form) {
+    		const screenWidth = window.innerWidth;
+    		const screenHeight = window.innerHeight;
+
+    		let formRect = form.getBoundingClientRect();
+
+    	// Prüft, obs nach rechts hinaus geht
+    		if (formRect.right > screenWidth) {
+				form.style.left = (screenWidth - formRect.width - 10) + 'px'; // Popup anpassen
+    		}
+    	// unten
+    		if (formRect.bottom > screenHeight) {
+        		form.style.top = (screenHeight - formRect.height - 10) + 'px'; // Popup anpassen
+    		}
+		// links
+    		if (formRect.left < 0) {
+        		form.style.left = '10px'; // Popup anpassen
+    		}
+    	// oben
+    		if (formRect.top < 0) {
+        		form.style.top = '10px'; // Popup anpassen
+    		}
+		}
+	</script>
+
+
+</div>
+</body>
+</html>
+
