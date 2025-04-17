@@ -13,6 +13,7 @@
     		width: 100%;	
     		margin: 0;
     		padding: 0;
+			background-color: white;
 		}
 	</style>
 	
@@ -21,45 +22,7 @@
 <!-- Einbindung der Karte -->
 		<div id="map"></div>
     	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Einbindung Leaflet-Bibliothek -->
-	<script>
-    // Bildgröße in Pixeln
-    	const imageWidth = 1600; 
-		const imageHeight = 1060; 
-
-    // Initialisierung Leaflet-Karte 
-    	const map = L.map('map', {
-        	crs: L.CRS.Simple,  // Welches Koordinatensystem wird verwendet
-        	minZoom: -2,        // Herauszoomen (Begrenzung)
-        	maxZoom: 5,         // Maximale Zoom-Stufe
-        	zoomSnap: 0.5       // Smoother Zoom
-    	});
-
-    // Text in rechter Ecke bearbeiten/entfernen
-    	map.attributionControl.setPrefix('IT2:)');
-    
-    // Zoom-Button + und - entfernen
-    	map.zoomControl.remove();
-
-    // Definition der Bildgrenzen
-    	const southWest = map.unproject([0, imageHeight], map.getMaxZoom());
-    	const northEast = map.unproject([imageWidth, 0], map.getMaxZoom());
-    	const bounds = new L.LatLngBounds(southWest, northEast);
-
-    // Bild als Overlay hinzufügen
-    	L.imageOverlay('JadeHS_VonOben.svg', bounds).addTo(map);
-    
-    // Karte auf Bildgrenzen einstellen
-    	map.fitBounds(bounds);
-
-    // Minimalen Zoom festlegen nach 'fit bounds'
-    	const minZoom = map.getZoom();
-    	map.setMinZoom(minZoom); 
-	// Maximaler Zoom
-    	map.setMaxZoom(10); 
-    
-    // Karte kann nicht über die Bildgrenzen verschoben werden
-    	map.setMaxBounds(bounds);
-	</script>
+<script src="karte.js"> </script>
 	
 
 <!-- Punkte setzen -->
@@ -97,73 +60,7 @@
 		">
 			💾Erinnerung speichern
 		</button>
-	<script>
-		//Punkt-Aussehen:)
-		const customIcon = L.icon({
-    		iconUrl: 'Roter-punkt.png',  
-    		iconSize: [16, 16],        // Größe des Icons
-			iconAnchor: [8, 16],      // Wo Blase sitzt
-    		popupAnchor: [0, -16]      // Wo Popup erscheint
-		});
-	
-
-		let clickCoords;
-		map.on('contextmenu', function(e) {
-    		clickCoords = e.latlng;
-    		const form = document.getElementById('popupForm');
-
-    		form.style.left = e.originalEvent.pageX + 'px';
-    		form.style.top = e.originalEvent.pageY + 'px';
-    		form.style.display = 'block';
-
-    		adjustPopupPosition(form);  // Popup positionieren
-		});
-	
-		function submitMarker() {
-			const title = document.getElementById('markerTitle').value;
-			const text = document.getElementById('markerText').value;
-
-			const popupContent = `<strong>${title}</strong><br>${text}`;
-
-			L.marker(clickCoords, { icon: customIcon }).addTo(map)
-				.bindPopup(popupContent)
-				.openPopup();
-    // Formular wieder ausblenden & resetten
-    	document.getElementById('popupForm').style.display = 'none';
-    	document.getElementById('markerTitle').value = '';
-		}
-	// Funktion, um das Formular innerhalb des Bildschirms zu positionieren
-		function adjustPopupPosition(form) {
-    		const screenWidth = window.innerWidth;
-    		const screenHeight = window.innerHeight;
-
-    		let formRect = form.getBoundingClientRect();
-
-    	// Prüft, obs nach rechts hinaus geht
-    		if (formRect.right > screenWidth) {
-				form.style.left = (screenWidth - formRect.width - 10) + 'px'; // Popup anpassen
-    		}
-    	// unten
-    		if (formRect.bottom > screenHeight) {
-        		form.style.top = (screenHeight - formRect.height - 10) + 'px'; // Popup anpassen
-    		}
-		// links
-    		if (formRect.left < 0) {
-        		form.style.left = '10px'; // Popup anpassen
-    		}
-    	// oben
-    		if (formRect.top < 0) {
-        		form.style.top = '10px'; // Popup anpassen
-    		}
-		}
-		document.addEventListener('keydown', function(e) {
-			const formVisible = document.getElementById('popupForm').style.display === 'block';
-			if (formVisible && e.key === 'Enter') {
-				e.preventDefault(); // Verhindert, dass Enter einen Zeilenumbruch im Textfeld macht
-				submitMarker();
-			}
-		});
-	</script>
+<script src="punkt.js"> </script>
 
 
 </div>
