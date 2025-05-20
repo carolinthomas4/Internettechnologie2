@@ -1,6 +1,6 @@
     // Bildgröße in Pixeln
-    	const imageWidth = 1366; 
-		const imageHeight = 768; 
+    	const imageWidth = 1838.93; 
+		const imageHeight = 1722.14; 
 
     // Initialisierung Leaflet-Karte 
     	const map = L.map('map', {
@@ -22,10 +22,11 @@
     	const bounds = new L.LatLngBounds(southWest, northEast);
 
     // Bild als Overlay
-    	L.imageOverlay('JadeHS_VonOben.svg', bounds).addTo(map);
+    	L.imageOverlay('JadeHS_VonOben3.0.svg', bounds).addTo(map);
     
     // Karte auf Bildgrenzen
     	map.fitBounds(bounds);
+//map.setView([imageHeight / 2, imageWidth / 2], 15);
 
     // Minimaler Zoom 
     	const minZoom = map.getZoom();
@@ -35,3 +36,7 @@
     
     // Karte kann nicht über Bildgrenzen
     	map.setMaxBounds(bounds);// JavaScript Document
+
+map.setView([imageHeight / 2, imageWidth / 2], 15);
+const zoomLevel = map.getBoundsZoom(bounds, true); // true = Bild vollständig sichtbar, ohne Rand
+map.setView(bounds.getCenter(), zoomLevel);

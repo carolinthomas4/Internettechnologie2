@@ -8,14 +8,14 @@ const customIcon = L.icon({
 	
 let clickCoords;
 	map.on('contextmenu', function(e) {
-    	clickCoords = e.latlng;
-    	const form = document.getElementById('popupForm');
+    const form = document.getElementById('popupForm');
 
-    	form.style.left = e.originalEvent.pageX + 'px';
-    	form.style.top = e.originalEvent.pageY + 'px';
-    	form.style.display = 'block';
+    if (form.style.display === 'block') {
+        return; //kein neuer Punkt bei geöffnetem Formular
+    }
 
-    	adjustPopupPosition(form);  // Popup positionieren
+    clickCoords = e.latlng;
+    form.style.display = 'block';
 });
 	
 function submitMarker() {
@@ -24,41 +24,40 @@ function submitMarker() {
 
 	const popupContent = `<strong>${title}</strong><br>${text}`;
 
-		L.marker(clickCoords, { icon: customIcon }).addTo(map)
-			.bindPopup(popupContent)
-			.openPopup();
+const marker = L.marker(clickCoords, { icon: customIcon }).addTo(map);
+
+// Öffne Modal beim Klick auf den Marker
+marker.on('click', function() {
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalText').innerText = text;
+  document.getElementById('myModal').style.display = 'block';
+});
+			//.openPopup();
 // Formular wieder ausblenden & resetten
     document.getElementById('popupForm').style.display = 'none';
     document.getElementById('markerTitle').value = '';
+		document.getElementById('markerText').value = '';
 }
-// Funktion, um das Formular innerhalb des Bildschirms zu positionieren
-function adjustPopupPosition(form) {
-   	const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
 
-    	let formRect = form.getBoundingClientRect();
-
-    // Prüft, obs nach rechts hinaus geht
-    if (formRect.right > screenWidth) {
-		form.style.left = (screenWidth - formRect.width - 10) + 'px'; // Popup anpassen
-    }
-    // unten
-    if (formRect.bottom > screenHeight) {
-        form.style.top = (screenHeight - formRect.height - 10) + 'px'; // Popup anpassen
-    }
-	// links
-    if (formRect.left < 0) {
-        form.style.left = '10px'; // Popup anpassen
-    }
-    // oben
-    if (formRect.top < 0) {
-        form.style.top = '10px'; // Popup anpassen
-    }
-}
 document.addEventListener('keydown', function(e) {
 	const formVisible = document.getElementById('popupForm').style.display === 'block';
 		if (formVisible && e.key === 'Enter') {
 			e.preventDefault(); // Verhindert, Zeilenumbruch durch Enter
 			submitMarker();
 		}
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+	const closeBtn = document.getElementById('closeModal');
+	const modal = document.getElementById('myModal');
+
+	closeBtn.addEventListener('click', function() {
+		modal.style.display = 'none'; // Modal schließen
+	});
+	
+		window.addEventListener('click', function(event) {
+		if (event.target === modal) {
+			modal.style.display = 'none';
+		}
+	});
 });

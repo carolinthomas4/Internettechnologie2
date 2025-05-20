@@ -7,14 +7,72 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     
 	<style>
+
 /* Karte */	
-    	html, body, #map {
+    	html, body {
 			height: 100%;
     		width: 100%;	
     		margin: 0;
     		padding: 0;
 			background-color: white;
+			overflow: hidden;
 		}
+
+		#map {
+  			height: 110vh;
+			width: 110vw;
+			margin: 0;
+			padding: 0;
+			display: block; /* kann helfen */
+			background-color: transparent;
+		}
+		
+/* Formular */
+		#popupForm {
+  			position: fixed;
+  			top: 50%;
+  			left: 50%;
+  			transform: translate(-50%, -50%);
+  			display: none;
+  			background: white;
+  			padding: 15px;
+  			border-radius: 10px;
+  			border: 1px solid #ccc;
+  			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  			z-index: 1000;
+  			font-family: sans-serif;
+  			width: 330px;
+  			max-height: 90vh;
+  			overflow-y: auto;
+		}
+		
+		
+		.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0,0,0,0.6);
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  margin: 5% auto;
+  padding: 20px;
+  width: 70%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 8px;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 10px; right: 20px;
+  font-size: 30px;
+  cursor: pointer;
+}
 	</style>
 	
 </head>
@@ -28,7 +86,7 @@
 <!-- Punkte setzen -->
 		<div id="popupForm" style="
 			display: none;
-			position: absolute;
+			position: fixed;
 			background: white;
 			padding: 15px;
 			border-radius: 10px;
@@ -39,6 +97,7 @@
 			height: 300px;
 			width: 330px;
 		">
+			
 		<h3 style="margin-top: 0;">Erinnerung erstellen</h3>
 
 		<label for="markerTitle">Titel:</label><br>
@@ -59,11 +118,18 @@
 			right: 10px;
 		">
 			💾Erinnerung speichern
-		</button>
+		</button> </div>
 <script src="punkt.js"> </script>
 
-
+	
+	<div id="myModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <p id="modalText"></p>
+  </div>
 </div>
+
 </body>
 </html>
 
