@@ -1,19 +1,19 @@
-    // Bildgröße in Pixeln
-    	const imageWidth = 1838.93; 
+    // Bildgröße (px)
+		const imageWidth = 1838.93; 
 		const imageHeight = 1722.14; 
 
-    // Initialisierung Leaflet-Karte 
+    // InitialisierungKarte 
     	const map = L.map('map', {
-        	crs: L.CRS.Simple,  // Welches Koordinatensystem wird verwendet
-        	minZoom: 0,        // Herauszoomen (Begrenzung)
-        	maxZoom: 5,         // Maximale Zoom-Stufe
-        	zoomSnap: 0.5       // Smoother Zoom
+        	crs: L.CRS.Simple,  // Koordinatensystem
+        	minZoom: 0,        	// Rauszoomen (Begrenzung)
+        	maxZoom: 5,        	// Maximale Zoom-Stufe
+        	zoomSnap: 0.5      	// Zoom
     	});
 
     // Text in rechter Ecke
     	map.attributionControl.setPrefix('IT2:)');
     
-    // Zoom-Button + und - entfernen
+    // Zoom-Button entfernen
     	map.zoomControl.remove();
 
     // Bildgrenzen
@@ -26,7 +26,6 @@
     
     // Karte auf Bildgrenzen
     	map.fitBounds(bounds);
-//map.setView([imageHeight / 2, imageWidth / 2], 15);
 
     // Minimaler Zoom 
     	const minZoom = map.getZoom();
@@ -34,10 +33,10 @@
 	// Maximaler Zoom
     	map.setMaxZoom(10); 
     
-    // Karte kann nicht über Bildgrenzen
-    	map.setMaxBounds(bounds);// JavaScript Document
+    // Karte nicht über Bildgrenzen
+    	map.setMaxBounds(bounds);
 
-map.setView([imageHeight / 2, imageWidth / 2], 15);
-const zoomLevel = map.getBoundsZoom(bounds, true); // true = Bild vollständig sichtbar, ohne Rand
-map.setView(bounds.getCenter(), zoomLevel);
+		map.setView([imageHeight / 2, imageWidth / 2], 15);
+		const zoomLevel = map.getBoundsZoom(bounds, true); // true = Bild sichtbar, ohne Rand
+		map.setView(bounds.getCenter(), zoomLevel);
 

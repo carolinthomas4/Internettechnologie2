@@ -4,151 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sound-Memories</title>
+    
+    <!-- Leaflet CSS (Kartendarstellung) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     
-	<style>
+    <style>
+    /* Grundlegendes Styling der Seite und Karte */
+    html, body {
+        height: 100%;
+        width: 100%;	
+        margin: 0;
+        padding: 0;
+        background-color: white;
+        overflow: hidden;
+    }
 
-/* Karte */	
-    	html, body {
-			height: 100%;
-    		width: 100%;	
-    		margin: 0;
-    		padding: 0;
-			background-color: white;
-			overflow: hidden;
-		}
+    #map {
+        height: 110vh;
+        width: 110vw;
+        background-color: transparent;
+        display: block;
+    }
 
-		#map {
-  			height: 110vh;
-			width: 110vw;
-			margin: 0;
-			padding: 0;
-			display: block; /* kann helfen */
-			background-color: transparent;
-		}
-		
-/* Formular */
-		#popupForm {
-  			position: fixed;
-  			top: 50%;
-  			left: 50%;
-  			transform: translate(-50%, -50%);
-  			display: none;
-  			background: white;
-  			padding: 15px;
-  			border-radius: 10px;
-  			border: 1px solid #ccc;
-  			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  			z-index: 1000;
-  			font-family: sans-serif;
-  			width: 330px;
-  			max-height: 90vh;
-  			overflow-y: auto;
-		}
-		
-		
-	.modal {
-  position: fixed;
-  z-index: 9999;
-  left: 0; top: 0;
-  width: 100vw; height: 100vh;
-  background-color: rgba(0,0,0,0.6);
-  display: none;
-}
+    /* Formular Erstellen Erinnerungen */
+    #popupForm {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        font-family: sans-serif;
+        width: 330px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
 
-.modal-content {
-  background: white;
-  margin: 5% auto;
-  padding: 20px;
-  width: 70%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border-radius: 8px;
-  position: relative;
-}
+    /* Anzeigefenster Erinnerungen */
+    .modal {
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,0.6);
+        display: none;
+    }
 
-.close {
+    .modal-content {
+        background: white;
+        margin: 5% auto;
+        padding: 20px;
+        width: 70%;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 8px;
+        position: relative;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 30px;
+        cursor: pointer;
+    }
+#overlayEffect {
   position: absolute;
-  top: 10px; right: 20px;
-  font-size: 30px;
-  cursor: pointer;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* leicht transparentes Schwarz */
+  z-index: 500; /* zwischen Karte und Modal */
+  opacity: 0;
+  transform: scale(0.5);
+  pointer-events: none; /* verhindert Klicks auf das Overlay */
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
-	</style>
-	
+
+#overlayEffect.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+    </style>
 </head>
 <body>
-<!-- Einbindung der Karte -->
-		<div id="map"></div>
-    	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Einbindung Leaflet-Bibliothek -->
-<script src="karte.js"> </script>
+
+<!-- Karte, durch leaflet -->
+<div id="map"></div>
+
+<!-- Einbindung leaflet-bib. -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="karte.js"></script>
+
+<div id="overlayEffect"></div>
 	
+<!-- Formular: Erstellung Erinnerung -->
+<div id="popupForm" style="display: none; position: fixed; ...">
+    <h3 style="margin-top: 0;">Erinnerung erstellen</h3>
 
-<!-- Punkte setzen -->
-		<div id="popupForm" style="
-			display: none;
-			position: fixed;
-			background: white;
-			padding: 15px;
-			border-radius: 10px;
-			border: 1px solid #ccc;
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-			z-index: 1000;
-			font-family: sans-serif;
-			height: 500px;
-			width: 330px;
-		">
-			
-		<h3 style="margin-top: 0;">Erinnerung erstellen</h3>
+    <label for="markerTitle">Titel:</label><br>
+    <input type="text" id="markerTitle"><br>
 
-		<label for="markerTitle">Titel:</label><br>
-		<input type="text" id="markerTitle" style="width: 100%; margin-bottom: 10px;"><br>
+    <label for="markerText">Beschreibung:</label><br>
+    <textarea id="markerText" maxlength="500" placeholder="Max. 500 Zeichen"></textarea><br>
 
-		<label for="markerText">Beschreibung:</label><br>
-		<textarea id="markerText" style="width: 100%; height: 130px; resize: none;" maxlength="500" placeholder="Max. 500 Zeichen"></textarea><br>
-		
-		<div class="radio-group">
-  			<label><input type="radio" id="radioPositiv" name="stimmung" value="positiv"> positiv</label>
-  			<label><input type="radio" id="radioNeutral" name="stimmung" value="neutral"> neutral</label>
-  			<label><input type="radio" id="radioNegativ" name="stimmung" value="negativ"> negativ</label>
-		</div>
+    <div class="radio-group">
+        <label><input type="radio" id="radioPositiv" name="stimmung" value="positiv"> positiv</label>
+        <label><input type="radio" id="radioNeutral" name="stimmung" value="neutral"> neutral</label>
+        <label><input type="radio" id="radioNegativ" name="stimmung" value="negativ"> negativ</label>
+    </div>
 
-			
-		<label for="slider1">Lautstärke:</label>
-		<input type="range" id="slider1" name="slider1" min="0" max="100" value="50">
-		<span id="slider1Value"> </span>
-			
-		<label for="slider2">Geschwindigkeit:</label>
-		<input type="range" id="slider2" name="slider2" min="0" max="100" value="50">
-		<span id="slider2Value"> </span>
-			
-		<label for="slider3">Frequenz:</label>
-		<input type="range" id="slider3" name="slider3" min="0" max="100" value="50">
-		<span id="slider3Value"> </span>
+    <label for="slider1">Lautstärke:</label>
+    <input type="range" id="slider1" name="slider1" min="0" max="100" value="50">
+    <span id="slider1Value"></span>
 
-		<button onclick="submitMarker()" style="
-			background-color: #ffffff;
-			color: black;
-			padding: 8px 14px;
-			border: none;
-			border-radius: 4px;
-			cursor: pointer;
-			position: absolute;
-			bottom: 10px;
-			right: 10px;
-		">
-			💾Erinnerung speichern
-		</button> </div>
-<script src="punkt.js"> </script>
+    <label for="slider2">Geschwindigkeit:</label>
+    <input type="range" id="slider2" name="slider2" min="10" max="100" value="50">
+    <span id="slider2Value">1.0x</span>
+
+    <!-- <label for="slider3">Frequenz:</label>
+    <input type="range" id="slider3" name="slider3" min="0" max="100" value="50">
+    <span id="slider3Value"></span> -->
+
+    <button onclick="submitMarker()">
+        💾Erinnerung speichern
+    </button>
+</div>
 
 	
+<script src="punkt.js"></script>
+
+<!-- Anzeige gespeicherter Erinnerungen -->
 	<div id="myModal" class="modal" style="display:none;">
-  		<div class="modal-content">
-    		<span id="closeModal" class="close">&times;</span>
-    		<h2 id="modalTitle"></h2>
-    		<p id="modalText"></p>
-  		</div>
+    	<div class="modal-content">
+        	<span id="closeModal" class="close">&times;</span>
+        	<h2 id="modalTitle"></h2>
+        	<p id="modalText"></p>
+    	</div>
 	</div>
 
 </body>
 </html>
-

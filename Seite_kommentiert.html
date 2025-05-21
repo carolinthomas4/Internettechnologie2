@@ -82,16 +82,14 @@
 </head>
 <body>
 
-<!-- Karte, wird durch Leaflet.js befüllt -->
+<!-- Karte, durch leaflet -->
 <div id="map"></div>
 
-<!-- Einbindung der Leaflet-Bibliothek -->
+<!-- Einbindung leaflet-bib. -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- Eigene JS-Datei zur Kartenerstellung -->
 <script src="karte.js"></script>
 
-<!-- Formular zum Erstellen eines neuen Markers / einer Erinnerung -->
+<!-- Formular: Erstellung Erinnerung -->
 <div id="popupForm" style="display: none; position: fixed; ...">
     <h3 style="margin-top: 0;">Erinnerung erstellen</h3>
 
@@ -101,14 +99,12 @@
     <label for="markerText">Beschreibung:</label><br>
     <textarea id="markerText" maxlength="500" placeholder="Max. 500 Zeichen"></textarea><br>
 
-    <!-- Stimmungsauswahl -->
     <div class="radio-group">
         <label><input type="radio" id="radioPositiv" name="stimmung" value="positiv"> positiv</label>
         <label><input type="radio" id="radioNeutral" name="stimmung" value="neutral"> neutral</label>
         <label><input type="radio" id="radioNegativ" name="stimmung" value="negativ"> negativ</label>
     </div>
 
-    <!-- Audio-Parameter -->
     <label for="slider1">Lautstärke:</label>
     <input type="range" id="slider1" name="slider1" min="0" max="100" value="50">
     <span id="slider1Value"></span>
@@ -121,23 +117,22 @@
     <input type="range" id="slider3" name="slider3" min="0" max="100" value="50">
     <span id="slider3Value"></span>
 
-    <!-- Speichern-Button -->
     <button onclick="submitMarker()">
         💾Erinnerung speichern
     </button>
 </div>
 
-<!-- JS-Datei zum Umgang mit Marker-Interaktionen -->
+	
 <script src="punkt.js"></script>
 
-<!--  Modal zur Anzeige von gespeicherten Erinnerungen -->
-<div id="myModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span id="closeModal" class="close">&times;</span>
-        <h2 id="modalTitle"></h2>
-        <p id="modalText"></p>
-    </div>
-</div>
+<!-- Anzeige gespeicherter Erinnerungen -->
+	<div id="myModal" class="modal" style="display:none;">
+    	<div class="modal-content">
+        	<span id="closeModal" class="close">&times;</span>
+        	<h2 id="modalTitle"></h2>
+        	<p id="modalText"></p>
+    	</div>
+	</div>
 
 </body>
 </html>
