@@ -5,7 +5,7 @@
     // Initialisierung Leaflet-Karte 
     	const map = L.map('map', {
         	crs: L.CRS.Simple,  // Welches Koordinatensystem wird verwendet
-        	minZoom: -2,        // Herauszoomen (Begrenzung)
+        	minZoom: 0,        // Herauszoomen (Begrenzung)
         	maxZoom: 5,         // Maximale Zoom-Stufe
         	zoomSnap: 0.5       // Smoother Zoom
     	});
@@ -40,3 +40,4 @@
 map.setView([imageHeight / 2, imageWidth / 2], 15);
 const zoomLevel = map.getBoundsZoom(bounds, true); // true = Bild vollständig sichtbar, ohne Rand
 map.setView(bounds.getCenter(), zoomLevel);
+

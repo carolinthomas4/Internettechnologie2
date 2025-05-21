@@ -61,3 +61,34 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 });
+
+
+const slider1 = document.getElementById('slider1');
+const slider1Value = document.getElementById('slider1Value');
+
+slider1.addEventListener('input', function () {
+  slider1Value.textContent = slider1.value;
+});
+
+
+const sliderValue = document.getElementById('slider1').value;
+
+const soundPositiv = new Audio('positiv.mp3');
+const soundNeutral = new Audio('neutral.mp3');
+const soundNegativ = new Audio('traurig.mp3');
+
+document.getElementById('radioPositiv').addEventListener('click', () => {
+  soundPositiv.currentTime = 0;
+  soundPositiv.play();
+});
+
+document.getElementById('radioNeutral').addEventListener('click', () => {
+  soundNeutral.currentTime = 0;
+  soundNeutral.play();
+});
+
+document.getElementById('radioNegativ').addEventListener('click', () => {
+  soundNegativ.currentTime = 0;
+   soundNegativ.play();
+});
+
