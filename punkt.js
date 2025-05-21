@@ -3,7 +3,7 @@ const customIcon = L.icon({
  	iconUrl: 'RoterPunkt.svg',  
     iconSize: [16, 16],        // Icongröße
 	//iconAnchor: [8, 16],      // Wo Blase sitzt
-    //popupAnchor: [0, -16]      // Wo Popup erscheint
+    //popupAnchor: [0, -16]      // Wo Blase erscheint
 });
 	
 let clickCoords;
@@ -11,12 +11,19 @@ let clickCoords;
     const form = document.getElementById('popupForm');
 
     if (form.style.display === 'block') {
-        return; //kein neuer Punkt bei geöffnetem Formular
+        return; //kein neuer P bei geöffnetem formu
     }
 
     clickCoords = e.latlng;
     form.style.display = 'block';
 });
+
+function closeFormAndOverlay() {
+  document.getElementById('popupForm').style.display = 'none';
+  document.getElementById('markerTitle').value = '';
+  document.getElementById('markerText').value = '';
+  hideOverlay();
+}
 	
 function submitMarker() {
 	const title = document.getElementById('markerTitle').value;
@@ -33,16 +40,15 @@ marker.on('click', function() {
   document.getElementById('myModal').style.display = 'block';
 });
 
-// Formular ausblenden & resetten
-    document.getElementById('popupForm').style.display = 'none';
-    document.getElementById('markerTitle').value = '';
-		document.getElementById('markerText').value = '';
+// Form, Sounds,Overlay ausblenden
+	closeFormAndOverlay();
+	stopAllSounds()
 }
 
 document.addEventListener('keydown', function(e) {
 	const formVisible = document.getElementById('popupForm').style.display === 'block';
 		if (formVisible && e.key === 'Enter') {
-			e.preventDefault(); // Verhindert, Zeilenumbruch durch Enter
+			e.preventDefault(); // Verhindert, Zeilenumbruch durch Enter-> Brauchen wir??
 			submitMarker();
 		}
 });
@@ -79,7 +85,6 @@ const soundNegativ = new Audio('traurig.mp3');
 
 let currentSound = null;
 
-// Sounds stoppen
 function stopAllSounds() {
   [soundPositiv, soundNeutral, soundNegativ].forEach(sound => {
     sound.pause();
@@ -108,20 +113,20 @@ slider1.addEventListener('input', function () {
 slider2.addEventListener('input', function () {
   //slider2Value.textContent = slider2.value;
   if (currentSound) {
-    currentSound.playbackRate = slider2.value / 50; // 50 = normale Geschwindigkeit (1.0)
+    currentSound.playbackRate = slider2.value / 50; // 50 = norm. Geschw. (1.0)
   }
 });
 
 
-// Funktion: Skaliert von 0–100 auf 0.5x – 2.0x
+// Funktion: Skal. von 0–100 auf 0.25x – 2.0x
 function mapSliderToPlaybackRate(value) {
- const minRate = 0.25;  // minimale Geschwindigkeit
-  const maxRate = 2.0;   // maximale Geschwindigkeit
+ const minRate = 0.25;  // min Ges
+  const maxRate = 2.0;   // max Ges
 	const numericValue = parseFloat(value);
   return minRate + (numericValue / 100) * (maxRate - minRate);
 }
 
-slider2.value = 43; // optional: Startwert, der ca. 1.0x entspricht
+slider2.value = 43; // entspr etwa startwert von 1.0x
 const initialRate = mapSliderToPlaybackRate(slider2.value);
 slider2Value.textContent = initialRate.toFixed(2) + 'x';
 
@@ -162,7 +167,7 @@ document.getElementById('radioNegativ').addEventListener('click', () => {
   currentSound.play();
 });
 
-closeBtn.addEventListener('click', function() {
-  modal.style.display = 'none';
-  hideOverlay();
-});
+//closeBtn.addEventListener('click', function() {
+  //modal.style.display = 'none';
+  //hideOverlay();
+//});

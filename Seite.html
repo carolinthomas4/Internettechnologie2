@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     
     <style>
-    /* Grundlegendes Styling der Seite und Karte */
     html, body {
         height: 100%;
         width: 100%;	
@@ -26,7 +25,7 @@
         display: block;
     }
 
-    /* Formular Erstellen Erinnerungen */
+    /* Formu Erstellen Erinnerungen */
     #popupForm {
         position: fixed;
         top: 50%;
@@ -75,27 +74,46 @@
         font-size: 30px;
         cursor: pointer;
     }
-#overlayEffect {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4); /* leicht transparentes Schwarz */
-  z-index: 500; /* zwischen Karte und Modal */
-  opacity: 0;
-  transform: scale(0.5);
-  pointer-events: none; /* verhindert Klicks auf das Overlay */
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
+		
+	/* Overlay */
+	#overlayEffect {
+  		position: absolute;
+  		top: 0;
+  		left: 0;
+  		width: 100%;
+  		height: 100%;
+  		background: rgba(0, 0, 0, 0.4);
+  		z-index: 500;
+  		opacity: 0;
+  		transform: scale(0.5);
+  		pointer-events: none; 
+  		transition: opacity 0.5s ease, transform 0.5s ease;
+	}
 
-#overlayEffect.show {
-  opacity: 1;
-  transform: scale(1);
-}
+	#overlayEffect.show {
+  		opacity: 1;
+  		transform: scale(1);
+	}
+	/*Kreise bewegend im Overlay*/
+	.moving-svg {
+  		position: absolute;
+  		width: 800px;
+  		left: 50%;
+  		top: 50%;
+  		transform: translate(-50%, -50%);
+  		transform-origin: center center;
+  		animation: rotate 15s linear infinite;
+	}
+
+
+	@keyframes rotate {
+  		0%   { transform: translate(-50%, -50%) rotate(0deg); }
+  		100% { transform: translate(-50%, -50%) rotate(360deg); }
+	}
 
     </style>
 </head>
+
 <body>
 
 <!-- Karte, durch leaflet -->
@@ -105,9 +123,28 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="karte.js"></script>
 
-<div id="overlayEffect"></div>
+<div id="overlayEffect"> <!-- Generieung Kreise -->
+	   <svg class="moving-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 873.01 893.01">
+    <defs>
+      <style>
+        .cls-1 {
+          fill: none;
+          stroke: #dc0812;
+          stroke-miterlimit: 10;
+          stroke-width: 5px;
+        }
+      </style>
+    </defs>
+    <g id="Kreis_bass"><circle class="cls-1" cx="433" cy="122" r="119.5"/></g>
+    <g id="Kreis_mid1"><circle class="cls-1" cx="122" cy="623" r="119.5"/></g>
+    <g id="Kreis_mid2"><circle class="cls-1" cx="122" cy="288" r="119.5"/></g>
+    <g id="Kreis_mid3"><circle class="cls-1" cx="438.01" cy="771" r="119.5"/></g>
+    <g id="Kreis_mid4"><circle class="cls-1" cx="751.01" cy="306" r="119.5"/></g>
+    <g id="Kreis_high"><circle class="cls-1" cx="751.01" cy="634.01" r="119.5"/></g>
+  </svg>
+</div>
 	
-<!-- Formular: Erstellung Erinnerung -->
+<!-- Formu: Erstellung Erinnerung -->
 <div id="popupForm" style="display: none; position: fixed; ...">
     <h3 style="margin-top: 0;">Erinnerung erstellen</h3>
 
