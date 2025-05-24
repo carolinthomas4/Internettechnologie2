@@ -48,6 +48,7 @@
 <!-- Formu: Erstellung Erinnerung -->
 <div id="popupForm" style="display: none; position: fixed; ...">
     <h3 style="margin-top: 0;">Erinnerung erstellen</h3>
+	<button id="closeFormBtn" class="close-button">&times;</button>
 
     <label for="markerTitle">Titel:</label><br>
     <input type="text" id="markerTitle"><br>
@@ -56,18 +57,18 @@
     <textarea id="markerText" maxlength="500" placeholder="Max. 500 Zeichen"></textarea><br>
 
     <div class="radio-group">
-        <label><input type="radio" id="radioPositiv" name="stimmung" value="positiv"> positiv</label>
-        <label><input type="radio" id="radioNeutral" name="stimmung" value="neutral"> neutral</label>
-        <label><input type="radio" id="radioNegativ" name="stimmung" value="negativ"> negativ</label>
+        <label><input type="radio" id="radioTon11" name="stimmung" value="ton11"> Ton 1</label>
+        <label><input type="radio" id="radioTon12" name="stimmung" value="ton12"> Ton 2</label>
+        <label><input type="radio" id="radioTon13" name="stimmung" value="ton13"> Ton 3</label>
+		<label><input type="radio" id="radioTon14" name="stimmung" value="ton14"> Ton 4</label>
+        <label><input type="radio" id="radioTon15" name="stimmung" value="ton15"> Ton 5</label>
     </div>
 
-    <label for="slider1">Lautstärke:</label>
-    <input type="range" id="slider1" name="slider1" min="0" max="100" value="50">
-    <span id="slider1Value"></span>
+    <label for="volume">Lautstärke:</label>
+    <input type="range" id="volume" min="0.1" max="1" step="0.01" value="0.1">
 
-    <label for="slider2">Geschwindigkeit:</label>
-    <input type="range" id="slider2" name="slider2" min="10" max="100" value="50">
-    <span id="slider2Value">1.0x</span>
+    <label for="tempo">Geschwindigkeit:</label>
+    <input type="range" id="tempo" min="100" max="1000" value="500">
 
     <!-- <label for="slider3">Frequenz:</label>
     <input type="range" id="slider3" name="slider3" min="0" max="100" value="50">

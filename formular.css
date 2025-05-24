@@ -16,4 +16,18 @@
 	max-height: 90vh;
 	overflow-y: auto;
 }
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+.close-button:hover {
+  color: #dc0812;
+}
 

@@ -2,7 +2,7 @@
 
 //Punkt-Aussehen:)
 const customIcon = L.icon({
- 	iconUrl: 'RoterPunkt.svg',  
+	iconUrl: 'RoterPunkt.svg',  
     iconSize: [16, 16],        // Icongröße
 	//iconAnchor: [8, 16],      // Wo Blase sitzt
     //popupAnchor: [0, -16]      // Wo Blase erscheint
@@ -10,30 +10,22 @@ const customIcon = L.icon({
 	
 let clickCoords; //Speichern Koordinaten Mausklick
 
-const slider1 = document.getElementById('slider1');
-const slider1Value = document.getElementById('slider1Value');
-slider1Value.textContent = slider1.value;
-
-const slider2 = document.getElementById('slider2');
-const slider2Value = document.getElementById('slider2Value');
-//slider2Value.textContent = slider2.value;
-//const sliderValue = document.getElementById('slider1').value;
-
-const soundPositiv = new Audio('positiv.mp3');
-const soundNeutral = new Audio('neutral.mp3');
-const soundNegativ = new Audio('traurig.mp3');
-
 let currentSound = null;
 
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+let currentOscillator = null;
+let loopIntervalId = null;  // Für den Loop-Intervall
+
+const tones = {
+  ton11: { freq: 523.25, description: "hell, fröhlich" },
+  ton12: { freq: 392.00, description: "ruhig, ausgeglichen" },
+  ton13: { freq: 349.23, description: "melancholisch" },
+  ton14: { freq: 659.25, description: "wach, lebendig" },
+  ton15: { freq: 277.18, description: "nachdenklich, schwer" }
+};
 
 //HILFSFUNKTIONEN
-
-function stopAllSounds() {
-  [soundPositiv, soundNeutral, soundNegativ].forEach(sound => {
-    sound.pause();
-    sound.currentTime = 0;
-  });
-}
 
 function showOverlay() {
   const overlay = document.getElementById('overlayEffect');
@@ -45,19 +37,71 @@ function hideOverlay() {
   overlay.classList.remove('show');
 }
 
-// Funktion: Skal. von 0–100 auf 0.25x – 2.0x
-function mapSliderToPlaybackRate(value) {
- const minRate = 0.25;  // min Ges
-  const maxRate = 2.0;   // max Ges
-	const numericValue = parseFloat(value);
-  return minRate + (numericValue / 100) * (maxRate - minRate);
+function closeFormAndOverlay() {
+	document.getElementById('popupForm').style.display = 'none';
+	document.getElementById('markerTitle').value = '';
+	document.getElementById('markerText').value = '';
+	hideOverlay();
+	stopLoop();
 }
 
-function closeFormAndOverlay() {
-  document.getElementById('popupForm').style.display = 'none';
-  document.getElementById('markerTitle').value = '';
-  document.getElementById('markerText').value = '';
-  hideOverlay();
+function playTone(freq, duration = 300) {
+  stopTone();
+
+  const osc = audioCtx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+  const gainNode = audioCtx.createGain();
+
+const volume = parseFloat(document.getElementById('volume').value);
+gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.start();
+
+  setTimeout(() => {
+    osc.stop();
+    osc.disconnect();
+    gainNode.disconnect();
+  }, duration);
+
+  currentOscillator = osc;
+}
+
+function startLoop(freq) {
+  stopLoop(); // Vorherigen Loop stoppen
+	
+const intervalSlider = document.getElementById('tempo');
+const interval = parseInt(intervalSlider.value); // in ms
+
+  playTone(freq); // Direkt starten
+
+  loopIntervalId = setInterval(() => {
+    playTone(freq);
+  }, interval);
+}
+
+function stopTone() {
+  if (currentOscillator) {
+    try {
+      currentOscillator.stop();
+    } catch(e) {
+      // falls schon gestoppt
+    }
+    currentOscillator.disconnect();
+    currentOscillator = null;
+  }
+}
+
+function stopLoop() {
+  if (loopIntervalId) {
+    clearInterval(loopIntervalId);
+    loopIntervalId = null;
+  }
+  stopTone();
 }
 
 
@@ -80,7 +124,6 @@ marker.on('click', function() {
 	
 // Form, Sounds,Overlay ausblenden
 	closeFormAndOverlay();
-	stopAllSounds()
 }
 
 //EVENT-LISTENER
@@ -103,6 +146,8 @@ document.addEventListener('keydown', function(e) {
 		}
 });
 
+document.getElementById('closeFormBtn').addEventListener('click', closeFormAndOverlay);
+
 document.addEventListener('DOMContentLoaded', function() {
 	const closeBtn = document.getElementById('closeModal');
 	const modal = document.getElementById('myModal');
@@ -116,61 +161,43 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 });
 
-//Sound Buttons
-document.getElementById('radioPositiv').addEventListener('click', () => {
-	stopAllSounds();
-	currentSound = soundPositiv;
-	showOverlay();
-	currentSound.playbackRate = mapSliderToPlaybackRate(slider2.value);
-	currentSound.volume = slider1.value / 100;
-	currentSound.play();
+// Eventlistener für Radiobuttons, Loop starten
+document.getElementById('radioTon11').addEventListener('click', () => {
+  startLoop(tones.ton11.freq);
 });
 
-document.getElementById('radioNeutral').addEventListener('click', () => {
-	stopAllSounds();
-	currentSound = soundNeutral;
-	showOverlay();
-	currentSound.playbackRate = mapSliderToPlaybackRate(slider2.value);
-	currentSound.volume = slider1.value / 100;
-	currentSound.play();
+document.getElementById('radioTon12').addEventListener('click', () => {
+  startLoop(tones.ton12.freq);
 });
 
-document.getElementById('radioNegativ').addEventListener('click', () => {
-	stopAllSounds();
-	currentSound = soundNegativ;
-	showOverlay();
-	currentSound.playbackRate = mapSliderToPlaybackRate(slider2.value);
-	currentSound.volume = slider1.value / 100;
-	currentSound.play();
+document.getElementById('radioTon13').addEventListener('click', () => {
+  startLoop(tones.ton13.freq);
 });
 
-//Lautstärke
-slider1.addEventListener('input', function () {
-	slider1Value.textContent = slider1.value;
-	if (currentSound) {
-		currentSound.volume = slider1.value / 100;
-	}
+document.getElementById('radioTon14').addEventListener('click', () => {
+  startLoop(tones.ton14.freq);
 });
 
-//Geschwindigkeit
-slider2.addEventListener('input', function () {
-	//slider2Value.textContent = slider2.value;
-	if (currentSound) {
-		currentSound.playbackRate = slider2.value / 50; // 50 = norm. Geschw. (1.0)
-	}
+document.getElementById('radioTon15').addEventListener('click', () => {
+  startLoop(tones.ton15.freq);
 });
 
-slider2.value = 43; // entspr etwa startwert von 1.0x
-const initialRate = mapSliderToPlaybackRate(slider2.value);
-slider2Value.textContent = initialRate.toFixed(2) + 'x';
+document.getElementById('tempo').addEventListener('input', function() {
+  const speedValue = this.value;
+  document.getElementById('tempoValue').innerText = `${(1000 / speedValue).toFixed(2)}x`;
 
-slider2.addEventListener('input', function () {
-	const rate = mapSliderToPlaybackRate(slider2.value);
-	slider2Value.textContent = rate.toFixed(2) + 'x';
-	if (currentSound) {
-		currentSound.playbackRate = rate;
-	}
+  // Wenn ein Ton gerade läuft, neu starten mit neuem Intervall
+  if (currentOscillator) {
+    const checkedRadio = document.querySelector('input[name="stimmung"]:checked');
+    if (checkedRadio) {
+      const tone = tones[checkedRadio.value];
+      if (tone) {
+        startLoop(tone.freq);
+      }
+    }
+  }
 });
+
 
 //closeBtn.addEventListener('click', function() {
   //modal.style.display = 'none';
