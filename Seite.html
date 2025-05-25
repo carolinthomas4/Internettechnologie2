@@ -12,6 +12,7 @@
 	<link rel="stylesheet" href="formular.css">
 	<link rel="stylesheet" href="anzeigefenster.css">
 	<link rel="stylesheet" href="overlay.css">
+	<link rel="stylesheet" href="anleitung.css">
 
 </head>
 
@@ -23,6 +24,7 @@
 <!-- Einbindung leaflet-bib. -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="karte.js"></script>
+
 
 <div id="overlayEffect"> <!-- Generieung Kreise -->
 	   <svg class="moving-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 873.01 893.01">
@@ -87,15 +89,23 @@
 
 	
 <script src="punkt.js"></script>
+	
+s<script src="anleitung.js"></script>	
 
-<!-- Anzeige gespeicherter Erinnerungen -->
-	<div id="myModal" class="modal" style="display:none;">
-    	<div class="modal-content">
-        	<span id="closeModal" class="close">&times;</span>
-        	<h2 id="modalTitle"></h2>
-        	<p id="modalText"></p>
-    	</div>
-	</div>
+
+<div id="myModal" class="instruction-modal" style="display:none;">
+
+  <div class="modal-content">
+
+    <span id="closeModal" class="close">&times;</span>
+
+    <h2 id="modalTitle"></h2>
+
+    <p id="modalText" class="modal-text"></p>
+
+  </div>
+
+</div>
 
 </body>
 </html>

@@ -36,6 +36,20 @@ const extraTones = [
 ];
 
 //HILFSFUNKTIONEN
+
+function stopLoop(rowId = 'row1') {
+  if (loopIntervalId[rowId]) {
+    clearInterval(loopIntervalId[rowId]);
+    loopIntervalId[rowId] = null;
+  }
+  stopTone(rowId);
+}
+
+function stopAllLoops() {
+  for (const rowId in loopIntervalId) {
+    stopLoop(rowId);
+  }
+}
 document.getElementById('addRadioRowBtn').addEventListener('click', () => {
 	  if (rowCount >= 5) {
     alert("Du kannst maximal 4 Reihen hinzufügen.");
@@ -59,11 +73,7 @@ document.getElementById('addRadioRowBtn').addEventListener('click', () => {
   //console.log(Füge neue Reihe #${rowCount} hinzu mit Frequenzen:, toneData.freqs);
 
 	
-	function stopAllLoops() {
-  for (const rowId in loopIntervalId) {
-    stopLoop(rowId);
-  }
-}
+   stopAllLoops();
 
   // Erzeuge 5 Radio-Buttons für die Reihe
   for (let i = 1; i <= 5; i++) {
@@ -127,7 +137,7 @@ function closeFormAndOverlay() {
 	document.getElementById('popupForm').style.display = 'none';
 	document.getElementById('markerTitle').value = '';
 	document.getElementById('markerText').value = '';
-	hideOverlay();
+	//hideOverlay();
 	stopAllLoops();
 }
 
@@ -197,24 +207,42 @@ function stopLoop(rowId = 'row1') {
 //MARKER-FUNKTIONEN
 
 function submitMarker() {
-	const title = document.getElementById('markerTitle').value;
-	const text = document.getElementById('markerText').value;
+  const title = document.getElementById('markerTitle').value;
+  const text = document.getElementById('markerText').value;
 
-	//const popupContent = <strong>${title}</strong> <br>${text};
-	
-const marker = L.marker(clickCoords, { icon: customIcon }).addTo(map);
-	
-// Öffne PopUp beim Klick
-marker.on('click', function() {
-  document.getElementById('modalTitle').innerText = title;
-  document.getElementById('modalText').innerText = text;
-  document.getElementById('myModal').style.display = 'block';
-});
-	
-// Form, Sounds,Overlay ausblenden
-	closeFormAndOverlay();
+  const selectedTone = document.querySelector('input[name="stimmung_row1"]:checked');
+  const toneId = selectedTone ? selectedTone.value : null;
+
+  const volume = parseFloat(document.getElementById('volume').value);
+  const tempo = parseInt(document.getElementById('tempo').value);
+
+  const marker = L.marker(clickCoords, { icon: customIcon }).addTo(map);
+
+  // Speichere alle Infos im Marker
+  marker.data = {
+    title,
+    text,
+    toneId,
+    volume,
+    tempo
+  };
+
+  marker.on('click', function () {
+    document.getElementById('modalTitle').innerText = marker.data.title;
+    document.getElementById('modalText').innerText = marker.data.text;
+    document.getElementById('myModal').style.display = 'block';
+
+    if (marker.data && marker.data.toneId) {
+      document.getElementById('volume').value = marker.data.volume;
+      document.getElementById('tempo').value = marker.data.tempo;
+
+      showOverlay();
+      startLoop(tones[marker.data.toneId].freq);
+    }
+  });
+
+  closeFormAndOverlay();
 }
-
 //EVENT-LISTENER
 
 map.on('contextmenu', function(e) {
@@ -242,10 +270,15 @@ document.addEventListener('DOMContentLoaded', function() {
 	const modal = document.getElementById('myModal');
 	closeBtn.addEventListener('click', function() {
 		modal.style.display = 'none'; // PopUp schließen
-	});
+	hideOverlay();
+	stopAllLoops();
+		});
+	
 	window.addEventListener('click', function(event) {
 		if (event.target === modal) {
 			modal.style.display = 'none';
+				hideOverlay();
+	stopAllLoops();
 		}
 	});
 });
