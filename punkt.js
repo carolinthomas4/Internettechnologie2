@@ -184,7 +184,7 @@ document.getElementById('radioTon15').addEventListener('click', () => {
 
 document.getElementById('tempo').addEventListener('input', function() {
   const speedValue = this.value;
-  document.getElementById('tempoValue').innerText = `${(1000 / speedValue).toFixed(2)}x`;
+
 
   // Wenn ein Ton gerade läuft, neu starten mit neuem Intervall
   if (currentOscillator) {
