@@ -1,5 +1,6 @@
 // VARIABLEN UND KONSTANTEN
 
+
 //Punkt-Aussehen:)
 const customIcon = L.icon({
 	iconUrl: 'RoterPunkt.svg',  
@@ -14,18 +15,103 @@ let currentSound = null;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let currentOscillator = null;
-let loopIntervalId = null;  // Für den Loop-Intervall
+let currentOscillator = {};  // Objekt, in dem key = rowCount (z.B. "row1"), value = aktueller Oscillator der Reihe
+//let loopIntervalId = null;  // Für den Loop-Intervall
+let rowCount = 2;
+let loopIntervalId = {};
 
 const tones = {
-  ton11: { freq: 523.25, description: "hell, fröhlich" },
-  ton12: { freq: 392.00, description: "ruhig, ausgeglichen" },
-  ton13: { freq: 349.23, description: "melancholisch" },
-  ton14: { freq: 659.25, description: "wach, lebendig" },
-  ton15: { freq: 277.18, description: "nachdenklich, schwer" }
+  ton11: { freq: 523.25 },
+  ton12: { freq: 392.00 },
+  ton13: { freq: 349.23 },
+  ton14: { freq: 659.25 },
+  ton15: { freq: 277.18 }
 };
 
+const extraTones = [
+	{ freqs: [523.25, 587.33, 659.25, 698.46, 783.99], type: 'sine' },
+	{ freqs: [261.63, 293.66, 329.63, 349.23, 392.00], type: 'square' },
+	{ freqs: [196.00, 220.00, 246.94, 261.63, 293.66], type: 'triangle' },
+	{ freqs: [523.25, 587.33, 659.25, 698.46, 783.99], type: 'sawtooth' },
+];
+
 //HILFSFUNKTIONEN
+document.getElementById('addRadioRowBtn').addEventListener('click', () => {
+	  if (rowCount >= 5) {
+    alert("Du kannst maximal 4 Reihen hinzufügen.");
+    return; // Funktion an dieser Stelle abbrechen, keine neue Reihe hinzufügen
+  }
+  const radioGroup = document.querySelector('.radio-group');
+
+  // Erstelle neuen Container für Reihe
+  const newRow = document.createElement('div');
+  newRow.classList.add('radio-row');
+  newRow.style.marginTop = '10px';
+
+  // Hole Frequenz-Array für aktuelle Reihe
+  // WICHTIG: Überprüfen, ob extraTones[rowCount - 1] existiert
+  const toneData = extraTones[rowCount - 1];  // Objekt mit { freqs: [...], type: '...' }
+  if (!toneData) {
+    //console.warn(Keine Daten für rowCount=${rowCount});
+    return; // Abbrechen, wenn keine Frequenzen für diese Reihe vorhanden sind
+  }
+  
+  //console.log(Füge neue Reihe #${rowCount} hinzu mit Frequenzen:, toneData.freqs);
+
+	
+	function stopAllLoops() {
+  for (const rowId in loopIntervalId) {
+    stopLoop(rowId);
+  }
+}
+
+  // Erzeuge 5 Radio-Buttons für die Reihe
+  for (let i = 1; i <= 5; i++) {
+    const label = document.createElement('label');
+    label.style.whiteSpace = 'nowrap';
+    label.style.marginRight = '15px';
+
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = `stimmung_row${rowCount}`;
+input.id = `radioRow${rowCount}_Ton${i}`;
+input.value = `row${rowCount}_ton${i}`;
+   
+
+    label.appendChild(input);
+label.append(` Ton ${i}`);
+
+	  
+	 const currentRowId = `row${rowCount}`;
+
+    // Eventlistener für jeden Radiobutton
+    input.addEventListener('click', () => {
+      const freq = toneData.freqs[i - 1]; // Frequenz passend zum Button
+      const type = toneData.type;         // Typ aus extraTones
+
+      //console.log(Radiobutton clicked: Reihe ${rowCount}, Ton ${i}, freq=${freq}, type=${type});
+
+      // AudioContext ggf. resumieren, falls pausiert (Browser-Schutz)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+          startLoop(freq, type, currentRowId);
+        });
+      } else {
+        startLoop(freq, type, currentRowId);
+      }
+    });
+
+    newRow.appendChild(label);
+  }
+
+  // Füge neue Reihe an die Gruppe an
+  radioGroup.appendChild(newRow);
+
+  // Erhöhe rowCount für nächste Reihe
+  rowCount++;
+});
+
+
 
 function showOverlay() {
   const overlay = document.getElementById('overlayEffect');
@@ -42,14 +128,14 @@ function closeFormAndOverlay() {
 	document.getElementById('markerTitle').value = '';
 	document.getElementById('markerText').value = '';
 	hideOverlay();
-	stopLoop();
+	stopAllLoops();
 }
 
-function playTone(freq, duration = 300) {
-  stopTone();
+function playTone(freq, type = 'sine', rowId = 'row1', duration = 300) {
+  stopTone(rowId);
 
   const osc = audioCtx.createOscillator();
-  osc.type = 'sine';
+  osc.type = type;
   osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
   const gainNode = audioCtx.createGain();
@@ -68,40 +154,43 @@ gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
     gainNode.disconnect();
   }, duration);
 
-  currentOscillator = osc;
+  currentOscillator[rowId] = osc;
 }
 
-function startLoop(freq) {
-  stopLoop(); // Vorherigen Loop stoppen
+function startLoop(freq, type = 'sine', rowId = 'row1') {
+	//console.log(startLoop: freq=${freq}, type=${type}, rowId=${rowId});
+  stopLoop(rowId); // Vorherigen Loop stoppen
 	
 const intervalSlider = document.getElementById('tempo');
 const interval = parseInt(intervalSlider.value); // in ms
 
-  playTone(freq); // Direkt starten
+  playTone(freq, type, rowId); // Direkt starten
 
-  loopIntervalId = setInterval(() => {
-    playTone(freq);
+  loopIntervalId[rowId] = setInterval(() => {
+    playTone(freq, type, rowId);
   }, interval);
 }
 
-function stopTone() {
-  if (currentOscillator) {
+function stopTone(rowId = 'row1') {
+  if (currentOscillator[rowId]) {
     try {
-      currentOscillator.stop();
+      currentOscillator[rowId].stop();
     } catch(e) {
       // falls schon gestoppt
     }
-    currentOscillator.disconnect();
-    currentOscillator = null;
+    currentOscillator[rowId].disconnect();
+    currentOscillator[rowId] = null;
   }
 }
 
-function stopLoop() {
-  if (loopIntervalId) {
-    clearInterval(loopIntervalId);
-    loopIntervalId = null;
+
+function stopLoop(rowId = 'row1') {
+	  //console.log(stopLoop: rowId=${rowId});
+  if (loopIntervalId[rowId]) {
+    clearInterval(loopIntervalId[rowId]);
+    loopIntervalId[rowId] = null;
   }
-  stopTone();
+  stopTone(rowId);
 }
 
 
@@ -111,7 +200,7 @@ function submitMarker() {
 	const title = document.getElementById('markerTitle').value;
 	const text = document.getElementById('markerText').value;
 
-	const popupContent = `<strong>${title}</strong><br>${text}`;
+	//const popupContent = <strong>${title}</strong> <br>${text};
 	
 const marker = L.marker(clickCoords, { icon: customIcon }).addTo(map);
 	
@@ -163,43 +252,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Eventlistener für Radiobuttons, Loop starten
 document.getElementById('radioTon11').addEventListener('click', () => {
-  startLoop(tones.ton11.freq);
+  startLoop(tones.ton11.freq, 'sine', 'row1');
 });
 
 document.getElementById('radioTon12').addEventListener('click', () => {
-  startLoop(tones.ton12.freq);
+  startLoop(tones.ton12.freq, 'sine', 'row1');
 });
 
 document.getElementById('radioTon13').addEventListener('click', () => {
-  startLoop(tones.ton13.freq);
+  startLoop(tones.ton13.freq, 'sine', 'row1');
 });
 
 document.getElementById('radioTon14').addEventListener('click', () => {
-  startLoop(tones.ton14.freq);
+  startLoop(tones.ton14.freq, 'sine', 'row1');
 });
 
 document.getElementById('radioTon15').addEventListener('click', () => {
-  startLoop(tones.ton15.freq);
+  startLoop(tones.ton15.freq, 'sine', 'row1');
 });
 
 document.getElementById('tempo').addEventListener('input', function() {
   const speedValue = this.value;
 
+  for (let i = 1; i <= rowCount; i++) {
+    const radios = document.querySelectorAll(input[name="stimmung_row${i}"]);
+    radios.forEach((radio, index) => {
+      if (radio.checked) {
+        let freq;
+        let type;
 
-  // Wenn ein Ton gerade läuft, neu starten mit neuem Intervall
-  if (currentOscillator) {
-    const checkedRadio = document.querySelector('input[name="stimmung"]:checked');
-    if (checkedRadio) {
-      const tone = tones[checkedRadio.value];
-      if (tone) {
-        startLoop(tone.freq);
+        if (i === 1) {
+          const toneKey = `ton1${index + 1}`;
+          freq = tones[toneKey]?.freq;
+          type = 'sine';
+        } else {
+          const toneData = extraTones[i - 2];
+          freq = toneData?.freqs[index];
+          type = toneData?.type;
+        }
+
+        if (freq && type) { 
+          const rowId = `row${i}`;
+          startLoop(freq, type, rowId);
+        }
       }
-    }
+    });
   }
-});
-
-
-//closeBtn.addEventListener('click', function() {
-  //modal.style.display = 'none';
-  //hideOverlay();
-//});
+});  

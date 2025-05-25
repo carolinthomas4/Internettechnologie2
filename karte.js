@@ -41,4 +41,3 @@
 		//map.setView([imageHeight / 2, imageWidth / 2], 1);
 		const zoomLevel = map.getBoundsZoom(bounds, true); // true = Bild sichtbar, ohne Rand
 		map.setView(bounds.getCenter(), zoomLevel);
-
