@@ -308,7 +308,7 @@ document.getElementById('tempo').addEventListener('input', function() {
   const speedValue = this.value;
 
   for (let i = 1; i <= rowCount; i++) {
-    const radios = document.querySelectorAll(input[name="stimmung_row${i}"]);
+    const radios = document.querySelectorAll(`input[name="stimmung_row${i}"]`);
     radios.forEach((radio, index) => {
       if (radio.checked) {
         let freq;
