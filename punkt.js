@@ -131,21 +131,6 @@ function stopAllLoops() {
   }
 }
 
-function handleToneSelection(rowId) {
-  const selectedRadio = document.querySelector(`input[name="stimmung_${rowId}"]:checked`);
-  if (!selectedRadio) return;
-
-  const toneId = selectedRadio.value;
-
-  if (toneId.endsWith("0")) {
-    // "Ton aus" wurde gewählt
-    stopLoop(rowId);
-  } else if (tones[toneId]) {
-    const freq = tones[toneId].freq;
-    startLoop(freq, rowId);
-  }
-}
-
 //MARKER-FUNKTIONEN
 
 function submitMarker() {
@@ -193,29 +178,29 @@ marker.data = {
     document.getElementById('myModal').style.display = 'block';
 
 if (marker.data) {
-if (marker.data.row1.toneId && tones[marker.data.row1.toneId]) {
-  document.getElementById('volume_row1').value = marker.data.row1.volume;
-  document.getElementById('tempo_row1').value = marker.data.row1.tempo;
-  startLoop(tones[marker.data.row1.toneId].freq, 'row1');
-}
+  if (marker.data.row1.toneId) {
+    document.getElementById('volume_row1').value = marker.data.row1.volume;
+    document.getElementById('tempo_row1').value = marker.data.row1.tempo;
+    startLoop(tones[marker.data.row1.toneId].freq, 'row1');
+  }
 
-if (marker.data.row2.toneId && tones[marker.data.row2.toneId]) {
-  document.getElementById('volume_row2').value = marker.data.row2.volume;
-  document.getElementById('tempo_row2').value = marker.data.row2.tempo;
-  startLoop(tones[marker.data.row2.toneId].freq, 'row2');
-}
+  if (marker.data.row2.toneId) {
+    document.getElementById('volume_row2').value = marker.data.row2.volume;
+    document.getElementById('tempo_row2').value = marker.data.row2.tempo;
+    startLoop(tones[marker.data.row2.toneId].freq, 'row2');
+  }
 	
-if (marker.data.row3.toneId && tones[marker.data.row3.toneId]) {
-  document.getElementById('volume_row3').value = marker.data.row3.volume;
-  document.getElementById('tempo_row3').value = marker.data.row3.tempo;
-  startLoop(tones[marker.data.row3.toneId].freq, 'row3');
-}
+	  if (marker.data.row3.toneId) {
+    document.getElementById('volume_row3').value = marker.data.row3.volume;
+    document.getElementById('tempo_row3').value = marker.data.row3.tempo;
+    startLoop(tones[marker.data.row3.toneId].freq, 'row3');
+  }
 
-if (marker.data.row4.toneId && tones[marker.data.row4.toneId]) {
-  document.getElementById('volume_row4').value = marker.data.row4.volume;
-  document.getElementById('tempo_row4').value = marker.data.row4.tempo;
-  startLoop(tones[marker.data.row4.toneId].freq, 'row4');
-}
+  if (marker.data.row4.toneId) {
+    document.getElementById('volume_row4').value = marker.data.row4.volume;
+    document.getElementById('tempo_row4').value = marker.data.row4.tempo;
+    startLoop(tones[marker.data.row4.toneId].freq, 'row4');
+  }
 	
 
   showOverlay();
@@ -262,14 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 });
-window.addEventListener("DOMContentLoaded", () => {
-  ["row1", "row2", "row3", "row4"].forEach(rowId => {
-    const radios = document.querySelectorAll(`input[name="stimmung_${rowId}"]`);
-    radios.forEach(radio => {
-      radio.addEventListener("change", () => handleToneSelection(rowId));
-    });
-  });
-});
+
 // Eventlistener für Radiobuttons, Loop starten
 document.getElementById('radioTon11').addEventListener('click', () => {
   startLoop(tones.ton11.freq, 'row1');
@@ -314,44 +292,44 @@ document.getElementById('radioTon25').addEventListener('click', () => {
 
 //reihe 3
 document.getElementById('radioTon31').addEventListener('click', () => {
-  startLoop(tones.ton31.freq, 'row3');
+  startLoop(tones.ton11.freq, 'row3');
 });
 
 document.getElementById('radioTon32').addEventListener('click', () => {
-  startLoop(tones.ton32.freq, 'row3');
+  startLoop(tones.ton12.freq, 'row3');
 });
 
 document.getElementById('radioTon33').addEventListener('click', () => {
-  startLoop(tones.ton33.freq, 'row3');
+  startLoop(tones.ton13.freq, 'row3');
 });
 
 document.getElementById('radioTon34').addEventListener('click', () => {
-  startLoop(tones.ton34.freq, 'row3');
+  startLoop(tones.ton14.freq, 'row3');
 });
 
 document.getElementById('radioTon35').addEventListener('click', () => {
-  startLoop(tones.ton35.freq, 'row3');
+  startLoop(tones.ton15.freq, 'row3');
 });
 
 // Eventlistener für Radiobuttons, Loop starten
 document.getElementById('radioTon41').addEventListener('click', () => {
-  startLoop(tones.ton41.freq, 'row4');
+  startLoop(tones.ton21.freq, 'row4');
 });
 
 document.getElementById('radioTon42').addEventListener('click', () => {
-  startLoop(tones.ton42.freq, 'row4');
+  startLoop(tones.ton22.freq, 'row4');
 });
 
 document.getElementById('radioTon43').addEventListener('click', () => {
-  startLoop(tones.ton43.freq, 'row4');
+  startLoop(tones.ton23.freq, 'row4');
 });
 
 document.getElementById('radioTon44').addEventListener('click', () => {
-  startLoop(tones.ton44.freq, 'row4');
+  startLoop(tones.ton24.freq, 'row4');
 });
 
 document.getElementById('radioTon45').addEventListener('click', () => {
-  startLoop(tones.ton45.freq, 'row4');
+  startLoop(tones.ton25.freq, 'row4');
 });
 
 document.getElementById('tempo_row1').addEventListener('input', function () {
@@ -407,4 +385,18 @@ document.getElementById('tempo_row4').addEventListener('input', () => {
     const toneId = selectedTone.value;
     startLoop(tones[toneId].freq, 'row4');
   }
+});
+
+//Ton-aus-Buttons
+document.getElementById('radioTon10').addEventListener('click', () => {
+  stopLoop('row1');
+});
+document.getElementById('radioTon20').addEventListener('click', () => {
+  stopLoop('row2');
+});
+document.getElementById('radioTon30').addEventListener('click', () => {
+  stopLoop('row3');
+});
+document.getElementById('radioTon40').addEventListener('click', () => {
+  stopLoop('row4');
 });
