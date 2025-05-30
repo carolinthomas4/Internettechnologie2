@@ -24,9 +24,12 @@
 <!-- Einbindung leaflet-bib. -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="karte.js"></script>
+	
+	<div id="overlayEffect"> <!-- Generieung Kreise -->
+		 <canvas id="sineCanvas" width="window.innerWidth" height="150"></canvas>
+		 <canvas id="squaresCanvas" style="position: absolute; top: 0; left: 0; z-index: 100;"></canvas>
 
-
-<div id="overlayEffect"> <!-- Generieung Kreise -->
+		
 	   <svg class="moving-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 873.01 893.01">
     <defs>
       <style>

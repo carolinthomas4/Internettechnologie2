@@ -33,3 +33,43 @@
 	0%   { transform: translate(-50%, -50%) rotate(0deg); }
 	100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+#sineCanvas {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background-color: rgba(255, 255, 255, 0.05); /* leicht transparent */
+}
+
+canvas {
+  position: fixed;   /* Damit es immer sichtbar ist */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;    /* Verhindert Scrollbars */
+}
+
+.squares {
+  width: 60px;
+  height: 60px;
+  background-color: #4f46e5; /* ein schönes Indigo */
+  margin: 20px;
+  animation: pulse 1.5s infinite ease-in-out;
+  transform-origin: center;
+  border-radius: 8px; /* optional: leicht abgerundete Ecken */
+}
+
+/* Puls-Animation */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
+}

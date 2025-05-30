@@ -50,8 +50,74 @@ const tones = {
 	//{ freqs: [196.00, 220.00, 246.94, 261.63, 293.66], type: 'triangle' },
 	//{ freqs: [523.25, 587.33, 659.25, 698.46, 783.99], type: 'sawtooth' },
 //];
+const canvas = document.getElementById('sineCanvas');
+const ctx = canvas.getContext('2d');
+let animationFrameId;
+
+const squaresCanvas = document.getElementById("squaresCanvas");
+const squaresCtx = squaresCanvas ? squaresCanvas.getContext("2d") : null;
+squaresCanvas.width = window.innerWidth;
+squaresCanvas.height = window.innerHeight;
+
+let squaresAnimationId;
+const squares = [];
+let pulseStartTime = null;
+
 
 //HILFSFUNKTIONEN
+function drawSineCircle(freq, volume, tempo) {
+  cancelAnimationFrame(animationFrameId);
+
+  const size = 300;
+  const width = canvas.width = size;
+  const height = canvas.height = size;
+
+  const centerX = width / 2;
+  const centerY = height / 2;
+	
+  const baseRadius = 40 + volume * 70;  // je größer volume, desto größer der Basisradius
+  const amplitude = volume * 20;
+  const frequency = freq / 50;
+
+  let angle = 0;
+  const angularSpeed = 0.05 * (1000 / tempo);
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.beginPath();
+
+    for (let theta = 0; theta <= 2 * Math.PI; theta += 0.01) {
+      const modRadius = baseRadius + amplitude * Math.sin(frequency * theta + angle);
+
+      const x = centerX + modRadius * Math.cos(theta);
+      const y = centerY + modRadius * Math.sin(theta);
+
+      if (theta === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    angle += angularSpeed;
+    animationFrameId = requestAnimationFrame(draw);
+  }
+
+  draw();
+}
+
+
+function stopSineWave() {
+  cancelAnimationFrame(animationFrameId);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
 
 function playTone(freq, rowId, duration = 300) {
   stopTone(rowId);
@@ -79,16 +145,77 @@ gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
   currentOscillator[rowId] = osc;
 }
 
+function drawSquares(freq, volume, interval, numberOfSquares = 20) {
+  squaresCanvas.width = window.innerWidth;
+  squaresCanvas.height = window.innerHeight;
+
+  squares.length = 0; // vorherige löschen
+
+  // Beispiel: mehrere Quadrate mit Zufallspositionen
+  //const numberOfSquares = 10;
+  for (let i = 0; i < numberOfSquares; i++) {
+    squares.push({
+      x: Math.random() * squaresCanvas.width,
+      y: Math.random() * squaresCanvas.height,
+      baseSize: 20,
+		volume: volume,
+      //pulsePhase: Math.random() * 2 * Math.PI  // eigene Pulsphase
+    });
+  }
+
+  pulseStartTime = null;
+  animatePulsingSquares(interval);
+}
+
+function animatePulsingSquares(interval) {
+  const now = performance.now();
+  if (!pulseStartTime) pulseStartTime = now;
+
+  const elapsed = now - pulseStartTime;
+
+  squaresCtx.clearRect(0, 0, squaresCanvas.width, squaresCanvas.height);
+
+  squares.forEach(sq => {
+    // Puls mit eigener Phase berechnen:
+    // Das sorgt dafür, dass jedes Quadrat in einer anderen Phase pulsiert
+	   const pulseAmplitude = 1.2 * sq.volume;  
+    const pulse = 1 + pulseAmplitude * Math.sin((elapsed / interval) * 2 * Math.PI);
+
+    const size = sq.baseSize * pulse;
+    const offset = (size - sq.baseSize) / 2;
+
+    squaresCtx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+    squaresCtx.fillRect(sq.x - offset, sq.y - offset, size, size);
+  });
+
+  squaresAnimationId = requestAnimationFrame(() => animatePulsingSquares(interval));
+}
+
+
+function stopSquaresAnimation() {
+  cancelAnimationFrame(squaresAnimationId);
+  if (squaresCtx) {
+    squaresCtx.clearRect(0, 0, squaresCanvas.width, squaresCanvas.height);
+  }
+}
+
 function startLoop(freq, rowId) {
   stopLoop(rowId); // Vorherigen Loop stoppen
 
 	const interval = parseInt(document.getElementById(`tempo_${rowId}`).value);
+	const volume = parseFloat(document.getElementById(`volume_${rowId}`).value);
+
 
   playTone(freq, rowId); // Direkt starten
 
   loopIntervalId[rowId] = setInterval(() => {
     playTone(freq, rowId);
   }, interval);
+	 if (rowId === 'row1') {
+  drawSineCircle(freq, volume, interval);
+  } else if (rowId === 'row2') {
+   drawSquares(freq, volume, interval);
+  }
 }
 
 function stopTone(rowId) {
@@ -108,6 +235,11 @@ function stopLoop(rowId) {
     loopIntervalId[rowId] = null;
   }
   stopTone(rowId);
+	 if (rowId === 'row1') {
+    stopSineWave();
+  } else if (rowId === 'row2') {
+    stopSquaresAnimation();
+  }
 }
 
 
