@@ -358,7 +358,7 @@ function animateSpirals() {
     );
   }
 
-  requestAnimationFrame(animateSpirals);
+  spiralsAnimationId = requestAnimationFrame(animateSpirals);
 }
 
 function stopSpiralsAnimation() {
@@ -402,23 +402,18 @@ function stopLoop(rowId) {
   stopTone(rowId);
 }
 
-function stopAllVisuals(rowId){
-	
-	 if (rowId === 'row1') {
-  	stopSineWave();
-	} else if (rowId === 'row2') {
-  	stopSquaresAnimation();
-	} else if (rowId === 'row3') {
-  	stopTrianglesAnimation();
-	} else if (rowId === 'row4') {
-  	stopSpiralsAnimation();
-	}
+function stopAllVisuals(rowId) {
+  if (rowId === 'row1') stopSineWave();
+  if (rowId === 'row2') stopSquaresAnimation();
+  if (rowId === 'row3') stopTrianglesAnimation();
+  if (rowId === 'row4') stopSpiralsAnimation();
 }
 
 
 function stopAllLoops() {
   for (const rowId in loopIntervalId) {
     stopLoop(rowId);
+	  stopAllVisuals(rowId);
   }
 }
 
@@ -459,7 +454,7 @@ marker.data = {
   title,
   text,
   row1: {
-    toneId: document.querySelector('input[name="stimmung_row1"]:checked')?.value || null,
+	  toneId: document.querySelector('input[name="stimmung_row1"]:checked')?.value || null,
     volume: parseFloat(document.getElementById('volume_row1').value),
     tempo: parseInt(document.getElementById('tempo_row1').value)
   },
@@ -494,12 +489,7 @@ marker.on('click', function () {
         document.getElementById(`volume_${rowId}`).value = row.volume;
         document.getElementById(`tempo_${rowId}`).value = row.tempo;
         startLoop(tones[row.toneId].freq, rowId);
-      } else {
-        // Falls kein Ton da ist, setze alles auf 0
-        document.getElementById(`volume_${rowId}`).value = 0;
-        document.getElementById(`tempo_${rowId}`).value = 0;
-        // Falls du möchtest, kannst du hier auch stopLoop(rowId) o.ä. aufrufen, um den Ton zu stoppen
-      }
+      } 
     }
 
     handleRow('row1');
