@@ -44,12 +44,6 @@ const tones = {
   ton45: { freq: 784.00 }
 };
 
-//const extraTones = [
-	//{ freqs: [523.25, 587.33, 659.25, 698.46, 783.99], type: 'sine' },
-	//{ freqs: [261.63, 293.66, 329.63, 349.23, 392.00], type: 'square' },
-	//{ freqs: [196.00, 220.00, 246.94, 261.63, 293.66], type: 'triangle' },
-	//{ freqs: [523.25, 587.33, 659.25, 698.46, 783.99], type: 'sawtooth' },
-//];
 const canvas = document.getElementById('sineCanvas');
 const ctx = canvas.getContext('2d');
 let animationFrameId;
@@ -83,7 +77,51 @@ if (spiralsCanvas) {
 let spiralsAnimationId;
 let spirals = [];
 
-//HILFSFUNKTIONEN
+//HILFSFUNKTIONEN AUDIO
+
+function playTone(freq, rowId, duration = 300) {
+  stopTone(rowId);
+
+  const osc = audioCtx.createOscillator();
+	osc.type = oscillatorTypes[rowId] || 'sine';
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+  const gainNode = audioCtx.createGain();
+
+const volume = parseFloat(document.getElementById(`volume_${rowId}`).value);
+gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.start();
+
+  setTimeout(() => {
+    osc.stop();
+    osc.disconnect();
+    gainNode.disconnect();
+  }, duration);
+
+  currentOscillator[rowId] = osc;
+}
+
+function stopTone(rowId) {
+  if (currentOscillator[rowId]) {
+    try {
+      currentOscillator[rowId].stop();
+    } catch(e) {
+    }
+    currentOscillator[rowId].disconnect();
+    currentOscillator[rowId] = null;
+  }
+}
+
+
+
+
+//HILFSFUNKTIONEN VISUALS
+
+//ROW1 Siuns
 function drawSineCircle(freq, volume, tempo) {
   cancelAnimationFrame(animationFrameId);
 
@@ -131,39 +169,12 @@ function drawSineCircle(freq, volume, tempo) {
   draw();
 }
 
-
 function stopSineWave() {
   cancelAnimationFrame(animationFrameId);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-
-function playTone(freq, rowId, duration = 300) {
-  stopTone(rowId);
-
-  const osc = audioCtx.createOscillator();
-	osc.type = oscillatorTypes[rowId] || 'sine';
-  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-  const gainNode = audioCtx.createGain();
-
-const volume = parseFloat(document.getElementById(`volume_${rowId}`).value);
-gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-
-  osc.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  osc.start();
-
-  setTimeout(() => {
-    osc.stop();
-    osc.disconnect();
-    gainNode.disconnect();
-  }, duration);
-
-  currentOscillator[rowId] = osc;
-}
-
+//ROW2 Squares
 function drawSquares(freq, volume, interval, numberOfSquares = 20) {
   squaresCanvas.width = window.innerWidth;
   squaresCanvas.height = window.innerHeight;
@@ -218,6 +229,8 @@ function stopSquaresAnimation() {
   }
 }
 
+//ROW3 Dreiecke
+
 function drawTriangles(freq, volume, interval, numberOfTriangles = 20) {
   trianglesCanvas.width = window.innerWidth;
   trianglesCanvas.height = window.innerHeight;
@@ -230,7 +243,8 @@ function drawTriangles(freq, volume, interval, numberOfTriangles = 20) {
       y: Math.random() * trianglesCanvas.height,
       baseSize: 20,
       volume: volume,
-      rotation: Math.random() * 2 * Math.PI // zufällige Rotation
+      rotation: Math.random() * 2 * Math.PI, // zufällige Rotation
+		rotationSpeed: 1000 / interval * 0.01 
     });
   }
   animateRotatingTriangles(interval);
@@ -260,7 +274,7 @@ function animateRotatingTriangles(interval) {
 
   triangles.forEach(tri => {
     // Rotation erhöhen, hier abhängig von Geschwindigkeit (= interval)
-    tri.rotation += 0.02; // Drehgeschwindigkeit (radians pro Frame)
+    tri.rotation += tri.rotationSpeed; // Drehgeschwindigkeit (radians pro Frame)
 
     // Größe konstant, z.B. baseSize * volume (oder feste Größe)
     const size = tri.baseSize * (1 + 0.5 * tri.volume);
@@ -277,6 +291,8 @@ function stopTrianglesAnimation() {
     trianglesCtx.clearRect(0, 0, trianglesCanvas.width, trianglesCanvas.height);
   }
 }
+
+//ROW4 Spirale
 
 function drawSpiral(ctx, x, y, radius, turns, rotation, color) {
   ctx.save();
@@ -304,10 +320,10 @@ function drawSpiral(ctx, x, y, radius, turns, rotation, color) {
   ctx.restore();
 }
 
-function drawSpirals(freq, volume, interval, numberOfSpirals = 10) {
+function drawSpirals(freq, volume, interval, tempo, numberOfSpirals = 10) {
   spiralsCanvas.width = window.innerWidth;
   spiralsCanvas.height = window.innerHeight;
-
+ //const syncRotationSpeed = 0.01 * (1000 / freq);
   spirals = []; // vorherige löschen
 
   for (let i = 0; i < numberOfSpirals; i++) {
@@ -318,7 +334,7 @@ function drawSpirals(freq, volume, interval, numberOfSpirals = 10) {
       turns: 3 + Math.random() * 2,
       volume,
       rotation: Math.random() * Math.PI * 2,
-      rotationSpeed: (Math.random() - 0.5) * 0.02
+      rotationSpeed: 1000 / interval * 0.01 
     });
   }
 
@@ -352,10 +368,12 @@ function stopSpiralsAnimation() {
   }
 }
 
+//LOOPS
 
 function startLoop(freq, rowId) {
-  stopLoop(rowId); // Vorherigen Loop stoppen
-
+  stopLoop(rowId);// Vorherigen Loop stoppen
+	stopAllVisuals(rowId);
+	
 	const interval = parseInt(document.getElementById(`tempo_${rowId}`).value);
 	const volume = parseFloat(document.getElementById(`volume_${rowId}`).value);
 
@@ -374,18 +392,6 @@ function startLoop(freq, rowId) {
 	 } else if (rowId === 'row4') {
   		drawSpirals(freq, volume, interval);
 	 }
-
-}
-
-function stopTone(rowId) {
-  if (currentOscillator[rowId]) {
-    try {
-      currentOscillator[rowId].stop();
-    } catch(e) {
-    }
-    currentOscillator[rowId].disconnect();
-    currentOscillator[rowId] = null;
-  }
 }
 
 function stopLoop(rowId) {
@@ -394,6 +400,10 @@ function stopLoop(rowId) {
     loopIntervalId[rowId] = null;
   }
   stopTone(rowId);
+}
+
+function stopAllVisuals(rowId){
+	
 	 if (rowId === 'row1') {
   	stopSineWave();
 	} else if (rowId === 'row2') {
@@ -405,6 +415,14 @@ function stopLoop(rowId) {
 	}
 }
 
+
+function stopAllLoops() {
+  for (const rowId in loopIntervalId) {
+    stopLoop(rowId);
+  }
+}
+
+//OPTIK 
 
 function showOverlay() {
   document.getElementById('overlayEffect').classList.add('show');
@@ -420,11 +438,7 @@ function closeFormAndOverlay() {
   stopAllLoops();
 }
 
-function stopAllLoops() {
-  for (const rowId in loopIntervalId) {
-    stopLoop(rowId);
-  }
-}
+
 
 //MARKER-FUNKTIONEN
 
@@ -467,43 +481,39 @@ marker.data = {
 
 };
 
-  marker.on('click', function () {
-    document.getElementById('modalTitle').innerText = marker.data.title;
-    document.getElementById('modalText').innerText = marker.data.text;
-    document.getElementById('myModal').style.display = 'block';
+marker.on('click', function () {
+  document.getElementById('modalTitle').innerText = marker.data.title;
+  document.getElementById('modalText').innerText = marker.data.text;
+  document.getElementById('myModal').style.display = 'block';
 
-if (marker.data) {
-  if (marker.data.row1.toneId) {
-    document.getElementById('volume_row1').value = marker.data.row1.volume;
-    document.getElementById('tempo_row1').value = marker.data.row1.tempo;
-    startLoop(tones[marker.data.row1.toneId].freq, 'row1');
-  }
+  if (marker.data) {
+    // Hilfsfunktion, die die Werte prüft und setzt
+    function handleRow(rowId) {
+      const row = marker.data[rowId];
+      if (row && row.toneId && tones[row.toneId] && tones[row.toneId].freq) {
+        document.getElementById(`volume_${rowId}`).value = row.volume;
+        document.getElementById(`tempo_${rowId}`).value = row.tempo;
+        startLoop(tones[row.toneId].freq, rowId);
+      } else {
+        // Falls kein Ton da ist, setze alles auf 0
+        document.getElementById(`volume_${rowId}`).value = 0;
+        document.getElementById(`tempo_${rowId}`).value = 0;
+        // Falls du möchtest, kannst du hier auch stopLoop(rowId) o.ä. aufrufen, um den Ton zu stoppen
+      }
+    }
 
-  if (marker.data.row2.toneId) {
-    document.getElementById('volume_row2').value = marker.data.row2.volume;
-    document.getElementById('tempo_row2').value = marker.data.row2.tempo;
-    startLoop(tones[marker.data.row2.toneId].freq, 'row2');
-  }
-	
-	  if (marker.data.row3.toneId) {
-    document.getElementById('volume_row3').value = marker.data.row3.volume;
-    document.getElementById('tempo_row3').value = marker.data.row3.tempo;
-    startLoop(tones[marker.data.row3.toneId].freq, 'row3');
-  }
+    handleRow('row1');
+    handleRow('row2');
+    handleRow('row3');
+    handleRow('row4');
 
-  if (marker.data.row4.toneId) {
-    document.getElementById('volume_row4').value = marker.data.row4.volume;
-    document.getElementById('tempo_row4').value = marker.data.row4.tempo;
-    startLoop(tones[marker.data.row4.toneId].freq, 'row4');
+    showOverlay();
   }
-	
-
-  showOverlay();
-}
-  });
+});
 
   closeFormAndOverlay();
 }
+
 //EVENT-LISTENER
 
 map.on('contextmenu', function(e) {
@@ -685,13 +695,17 @@ document.getElementById('tempo_row4').addEventListener('input', () => {
 //Ton-aus-Buttons
 document.getElementById('radioTon10').addEventListener('click', () => {
   stopLoop('row1');
+ stopSineWave();
 });
 document.getElementById('radioTon20').addEventListener('click', () => {
   stopLoop('row2');
+	stopSquaresAnimation();
 });
 document.getElementById('radioTon30').addEventListener('click', () => {
   stopLoop('row3');
+	stopTrianglesAnimation();
 });
 document.getElementById('radioTon40').addEventListener('click', () => {
   stopLoop('row4');
+	stopSpiralsAnimation();
 });
