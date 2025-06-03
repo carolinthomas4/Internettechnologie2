@@ -418,7 +418,36 @@ function stopAllLoops() {
 }
 
 //OPTIK 
+function resetForm() {
+  // Alle Radiobuttons mit class "radio-group" zurücksetzen
+  const radioGroups = document.querySelectorAll('.radio-group');
+  radioGroups.forEach(group => {
+    const radios = group.querySelectorAll('input[type="radio"]');
+    radios.forEach(radio => {
+      radio.checked = false;
+    });
+  });
 
+ const sliderContainers = document.querySelectorAll('.sliders');
+
+  sliderContainers.forEach(container => {
+    const sliders = container.querySelectorAll('input[type="range"]');
+
+    sliders.forEach(slider => {
+      if (slider.name === 'volume') {
+        slider.value = 0.1;
+      } else if (slider.name === 'tempo') {
+        slider.value = 700;
+      }
+
+      // Falls deine Visualisierung eigene Event-Handler nutzt:
+      //slider.dispatchEvent(new Event('input', { bubbles: true }));
+      //slider.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+
+}
+	
 function showOverlay() {
   document.getElementById('overlayEffect').classList.add('show');
 }
@@ -431,6 +460,9 @@ function closeFormAndOverlay() {
   document.getElementById('markerTitle').value = '';
   document.getElementById('markerText').value = '';
   stopAllLoops();
+	resetForm();
+
+	
 }
 
 
@@ -532,6 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		modal.style.display = 'none'; // PopUp schließen
 	hideOverlay();
 	stopAllLoops();
+		resetForm();
 		});
 	
 	window.addEventListener('click', function(event) {
