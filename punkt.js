@@ -175,7 +175,7 @@ function stopSineWave() {
 }
 
 //ROW2 Squares
-function drawSquares(freq, volume, interval, numberOfSquares = 20) {
+function drawSquares(freq, volume, interval, numberOfSquares = 6) {
   squaresCanvas.width = window.innerWidth;
   squaresCanvas.height = window.innerHeight;
 
@@ -183,7 +183,7 @@ function drawSquares(freq, volume, interval, numberOfSquares = 20) {
 
   // Beispiel: mehrere Quadrate mit Zufallspositionen
   //const numberOfSquares = 10;
-  for (let i = 0; i < numberOfSquares; i++) {
+  /*for (let i = 0; i < numberOfSquares; i++) {
     squares.push({
       x: Math.random() * squaresCanvas.width,
       y: Math.random() * squaresCanvas.height,
@@ -191,7 +191,31 @@ function drawSquares(freq, volume, interval, numberOfSquares = 20) {
 		volume: volume,
       //pulsePhase: Math.random() * 2 * Math.PI  // eigene Pulsphase
     });
-  }
+  }*/
+	const cols = Math.ceil(Math.sqrt(numberOfSquares)); // Spaltenanzahl (quadratisch aufgeteilt)
+const rows = Math.ceil(numberOfSquares / cols);     // Zeilenanzahl
+
+const padding = 50;
+const totalWidth = squaresCanvas.width - 2 * padding;
+const totalHeight = squaresCanvas.height - 2 * padding;
+
+const cellWidth = totalWidth / cols;
+const cellHeight = totalHeight / rows;
+
+for (let i = 0; i < numberOfSquares; i++) {
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+
+  const x = padding + col * cellWidth + cellWidth / 2;
+  const y = padding + row * cellHeight + cellHeight / 2;
+
+  squares.push({
+    x,
+    y,
+    baseSize: 40,
+    volume: volume,
+  });
+}
 
   pulseStartTime = null;
   animatePulsingSquares(interval);
@@ -214,7 +238,7 @@ function animatePulsingSquares(interval) {
     const size = sq.baseSize * pulse;
     const offset = (size - sq.baseSize) / 2;
 
-    squaresCtx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+    squaresCtx.fillStyle = 'rgba(255, 0, 0, 0.4)';
     squaresCtx.fillRect(sq.x - offset, sq.y - offset, size, size);
   });
 
@@ -231,7 +255,7 @@ function stopSquaresAnimation() {
 
 //ROW3 Dreiecke
 
-function drawTriangles(freq, volume, interval, numberOfTriangles = 20) {
+function drawTriangles(freq, volume, interval, numberOfTriangles = 30) {
   trianglesCanvas.width = window.innerWidth;
   trianglesCanvas.height = window.innerHeight;
 
@@ -314,7 +338,7 @@ function drawSpiral(ctx, x, y, radius, turns, rotation, color) {
     }
   }
 
-  ctx.strokeStyle = color || 'rgba(255, 0, 0, 0.8)';
+  ctx.strokeStyle = color || 'rgba(255, 0, 0, 0.4)';
   ctx.lineWidth = 2;
   ctx.stroke();
   ctx.restore();
@@ -330,7 +354,7 @@ function drawSpirals(freq, volume, interval, tempo, numberOfSpirals = 10) {
     spirals.push({
       x: Math.random() * spiralsCanvas.width,
       y: Math.random() * spiralsCanvas.height,
-      baseRadius: 30 + Math.random() * 40,
+      baseRadius: 40 ,
       turns: 3 + Math.random() * 2,
       volume,
       rotation: Math.random() * Math.PI * 2,
@@ -545,6 +569,7 @@ map.on('contextmenu', function(e) {
     	}
 	clickCoords = e.latlng;
 	form.style.display = 'block';
+	
 });
 
 document.addEventListener('keydown', function(e) {
@@ -560,6 +585,7 @@ document.getElementById('closeFormBtn').addEventListener('click', closeFormAndOv
 document.addEventListener('DOMContentLoaded', function() {
 	const closeBtn = document.getElementById('closeModal');
 	const modal = document.getElementById('myModal');
+	
 	closeBtn.addEventListener('click', function() {
 		modal.style.display = 'none'; // PopUp schließen
 	hideOverlay();
