@@ -1,0 +1,77 @@
+/* CSS Document */
+#popupForm {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: rgba(255,255,255,0.4);
+	padding: 15px;
+	border-radius: 10px;
+	z-index: 1000; 
+	font-family: sans-serif;
+	width: 540px;
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+#popupForm input[type="text"],
+#popupForm textarea {
+	width: 100%;    
+	box-sizing: border-box; 
+	padding: 8px 10px;      
+	margin-bottom: 15px;   
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 1rem;
+	font-family: inherit;
+	resize: vertical; 
+}
+
+.close-button {  
+	position: absolute;  
+	top: 8px;  
+	right: 8px;  
+	border: none;  
+	background: transparent;  
+	font-size: 24px;  
+	cursor: pointer;  
+	color: #555;
+}
+
+.close-button:hover {  
+	color: #dc0812;
+}
+
+.sound-controls {  
+	display: flex; 
+	flex-direction: column;  
+	gap: 10px;  
+	align-items: flex-start;  
+	margin-top: 10px;
+}
+
+.radio-group {  
+	display: flex;  
+	gap: 15px;  
+	flex-wrap: wrap;  
+	align-items: center;
+}
+
+.radio-group label { 
+	white-space: nowrap; 
+	cursor: pointer;
+}
+
+.sliders {  
+	display: flex;  
+	gap: 20px; 
+	align-items: center;
+}
+
+.sound-row{	
+	display: flex;  
+	flex-direction: column; 
+	gap: 8px;  
+	margin-bottom: 25px;
+}

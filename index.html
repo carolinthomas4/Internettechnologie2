@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de"><head>    
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound-Memories</title>
+	
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+	<link rel="stylesheet" href="karte.css">
+	<link rel="stylesheet" href="formular.css">
+	<link rel="stylesheet" href="anzeigefenster.css">
+	<link rel="stylesheet" href="overlay.css">
+	<link rel="stylesheet" href="anleitung.css">
+
+</head>
+<body>
+	
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- leaflet -->
+<script src="karte.js"></script>
+	
+<div id="overlayEffect">		 
+		<canvas id="torusCanvas"></canvas>		
+		<canvas id="cubesCanvas"></canvas>		
+		<canvas id="pyramidsCanvas"></canvas>		 
+		<canvas id="spiralsCanvas"></canvas>
+</div>
+
+<div id="popupForm" class="popup-Form">
+	<h3 style="margin-top: 0;">Erinnerung erstellen</h3>
+	<button id="closeFormBtn" class="close-button">&times;</button>
+
+    <label for="markerTitle">Titel:</label><br>
+    <input type="text" id="markerTitle"><br>
+
+    <label for="markerText">Beschreibung:</label><br>
+    <textarea id="markerText" maxlength="250" placeholder="Max. 250 Zeichen"></textarea><br>
+
+    <div class="sound-controls">
+		<div class="sound-row">
+			<div class="radio-group">        
+				<label><input type="radio" id="radioTon11" name="stimmung_row1" value="ton11"> Ton 1</label>       
+				<label><input type="radio" id="radioTon12" name="stimmung_row1" value="ton12"> Ton 2</label>        
+				<label><input type="radio" id="radioTon13" name="stimmung_row1" value="ton13"> Ton 3</label>        
+				<label><input type="radio" id="radioTon14" name="stimmung_row1" value="ton14"> Ton 4</label>        
+				<label><input type="radio" id="radioTon15" name="stimmung_row1" value="ton15"> Ton 5</label>		
+				<label><input type="radio" id="radioTon10" name="stimmung_row1" value="ton10"> Ton aus </label>
+			</div>
+			<div class="sliders">        
+				<label for="volume_row1">Lautstärke:</label>        
+				<input type="range" id="volume_row1" name="volume" min="0.1" max="1" step="0.01" value="0.1">        
+				<label for="tempo_row1">Geschwindigkeit:</label>        
+				<input type="range" id="tempo_row1" name="tempo" min="200" max="1200" value="700">    
+			</div>	
+		</div>		
+	
+		<div class="sound-row">	
+			<div class="radio-group">		
+				<label><input type="radio" id="radioTon21" name="stimmung_row2" value="ton21"> Ton 1</label>			
+				<label><input type="radio" id="radioTon22" name="stimmung_row2" value="ton22"> Ton 2</label> 
+				<label><input type="radio" id="radioTon23" name="stimmung_row2" value="ton23"> Ton 3</label>
+				<label><input type="radio" id="radioTon24" name="stimmung_row2" value="ton24"> Ton 4</label>
+				<label><input type="radio" id="radioTon25" name="stimmung_row2" value="ton25"> Ton 5</label>
+				<label><input type="radio" id="radioTon20" name="stimmung_row2" value="ton20"> Ton aus </label>
+			</div>		
+			<div class="sliders">     
+				<label for="volume_row2">Lautstärke:</label>
+				<input type="range" id="volume_row2" name="volume" min="0.1" max="1" step="0.01" value="0.1">        
+				<label for="tempo_row2">Geschwindigkeit:</label> 
+				<input type="range" id="tempo_row2" name="tempo" min="200" max="1200" value="700">   
+			</div>
+		</div>	
+	
+		<div class="sound-row">
+			<div class="radio-group"> 
+				<label><input type="radio" id="radioTon31" name="stimmung_row3" value="ton31"> Ton 1</label>     
+				<label><input type="radio" id="radioTon32" name="stimmung_row3" value="ton32"> Ton 2</label>  
+				<label><input type="radio" id="radioTon33" name="stimmung_row3" value="ton33"> Ton 3</label> 
+				<label><input type="radio" id="radioTon34" name="stimmung_row3" value="ton34"> Ton 4</label>  
+				<label><input type="radio" id="radioTon35" name="stimmung_row3" value="ton35"> Ton 5</label>
+				<label><input type="radio" id="radioTon30" name="stimmung_row3" value="ton30"> Ton aus </label> 
+			</div>		
+			<div class="sliders">        
+				<label for="volume_row3">Lautstärke:</label>       
+				<input type="range" id="volume_row3" name="volume" min="0.1" max="1" step="0.01" value="0.1">        
+				<label for="tempo_row3">Geschwindigkeit:</label>        
+				<input type="range" id="tempo_row3" name="tempo" min="200" max="1200" value="700">   
+			</div>
+		</div>
+		
+		<div class="sound-row">    
+			<div class="radio-group">        
+				<label><input type="radio" id="radioTon41" name="stimmung_row4" value="ton41"> Ton 1</label>       
+				<label><input type="radio" id="radioTon42" name="stimmung_row4" value="ton42"> Ton 2</label>    
+				<label><input type="radio" id="radioTon43" name="stimmung_row4" value="ton43"> Ton 3</label>     
+				<label><input type="radio" id="radioTon44" name="stimmung_row4" value="ton44"> Ton 4</label>     
+				<label><input type="radio" id="radioTon45" name="stimmung_row4" value="ton45"> Ton 5</label>		
+				<label><input type="radio" id="radioTon40" name="stimmung_row4" value="ton40"> Ton aus </label>    
+			</div>
+			<div class="sliders">        
+				<label for="volume_row4">Lautstärke:</label>        
+				<input type="range" id="volume_row4" name="volume" min="0.1" max="1" step="0.01" value="0.1">        
+				<label for="tempo_row4">Geschwindigkeit:</label>        
+				<input type="range" id="tempo_row4" name="tempo" min="200" max="1200" value="700">   
+			</div>
+		</div>
+	</div>
+	
+	<button onclick="submitMarker()">
+		💾Erinnerung speichern
+    </button>
+</div>
+	
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.126.1/build/three.min.js"></script>
+<script src="marker.js"></script>
+<script src="anleitung.js"></script>	
+	
+<div id="myModal" class="instruction-modal" style="display:none;">
+	<div class="modal-content">    
+		<span id="closeModal" class="close">&times;</span>    
+		<h2 id="modalTitle"></h2>    
+		<p id="modalText" class="modal-text"></p>  
+	</div>
+</div>
+
+</body>
+</html>
