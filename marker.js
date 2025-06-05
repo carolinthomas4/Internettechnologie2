@@ -1,6 +1,6 @@
 // VARIABLEN UND KONSTANTEN
 
-//Karte, Marker
+//Karte, Marker, Formular
 const customIcon = L.icon({
 	iconUrl: 'RoterPunkt.svg',  
     iconSize: [16, 16], 
@@ -9,6 +9,20 @@ const customIcon = L.icon({
 let clickCoords; // Speichert Klickkoordinaten
 let currentOscillator = {};
 let loopIntervalId = {};
+
+const stopActions = {  
+	row1: stopDistortedTorus,  
+	row2: stopCubesAnimation,
+	row3: stopPyramidsAnimation,  
+	row4: stopSpiralAnimation,
+};
+
+const toneMap = {  
+	row1: ['ton11', 'ton12', 'ton13', 'ton14', 'ton15'],  
+	row2: ['ton21', 'ton22', 'ton23', 'ton24', 'ton25'],  
+	row3: ['ton11', 'ton12', 'ton13', 'ton14', 'ton15'],  
+	row4: ['ton21', 'ton22', 'ton23', 'ton24', 'ton25'],
+};
 
 //Audio
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -66,6 +80,37 @@ const circleTexture = loader.load('https://threejs.org/examples/textures/sprites
 //HILFSFUNKTIONEN 
 
 //Formular
+for (let row = 1; row <= 4; row++) { 
+	for (let col = 1; col <= 5; col++) {    
+		const buttonId = `radioTon${row}${col}`;    
+		const toneKey = toneMap[`row${row}`][col - 1];    
+		document.getElementById(buttonId).addEventListener('click', () => {      
+			startLoop(tones[toneKey].freq, `row${row}`);    
+		});  
+	}
+}
+
+for (let row = 1; row <= 4; row++) {  
+	const buttonId = `radioTon${row}0`;  
+	const rowKey = `row${row}`;  
+	document.getElementById(buttonId).addEventListener('click', () => {   
+		stopLoop(rowKey);   
+		stopActions[rowKey]();
+	});
+}
+
+for (let row = 1; row <= 4; row++) {  
+	['volume', 'tempo'].forEach(param => {    
+		const elementId = `${param}_row${row}`;    		document.getElementById(elementId).addEventListener('input', () => {    
+			const selectedTone = document.querySelector(`input[name="stimmung_row${row}"]:checked`);    
+			if (selectedTone) {      
+				const toneId = selectedTone.value;      
+				startLoop(tones[toneId].freq, `row${row}`);    
+			}   
+		});	
+	});
+}
+
 function showOverlay() {
 	document.getElementById('overlayEffect').classList.add('show');
 }
@@ -674,53 +719,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 });
 
-//Zusammenfassung Radio Buttons
-const toneMap = {  
-	row1: ['ton11', 'ton12', 'ton13', 'ton14', 'ton15'],  
-	row2: ['ton21', 'ton22', 'ton23', 'ton24', 'ton25'],  
-	row3: ['ton11', 'ton12', 'ton13', 'ton14', 'ton15'],  
-	row4: ['ton21', 'ton22', 'ton23', 'ton24', 'ton25'],
-};
 
-for (let row = 1; row <= 4; row++) { 
-	for (let col = 1; col <= 5; col++) {    
-		const buttonId = `radioTon${row}${col}`;    
-		const toneKey = toneMap[`row${row}`][col - 1];    
-		document.getElementById(buttonId).addEventListener('click', () => {      
-			startLoop(tones[toneKey].freq, `row${row}`);    
-		});  
-	}
-}
 
-//Zusammenfassung Ton Aus Button
-const stopActions = {  
-	row1: stopDistortedTorus,  
-	row2: stopCubesAnimation,
-	row3: stopPyramidsAnimation,  
-	row4: stopSpiralAnimation,
-};
 
-for (let row = 1; row <= 4; row++) {  
-	const buttonId = `radioTon${row}0`;  
-	const rowKey = `row${row}`;  
-	document.getElementById(buttonId).addEventListener('click', () => {   
-		stopLoop(rowKey);   
-		stopActions[rowKey]();
-	});
-}
-
-//Zusammenfassung Schieberegler
-for (let row = 1; row <= 4; row++) {  
-	['volume', 'tempo'].forEach(param => {    
-		const elementId = `${param}_row${row}`;    		document.getElementById(elementId).addEventListener('input', () => {    
-			const selectedTone = document.querySelector(`input[name="stimmung_row${row}"]:checked`);    
-			if (selectedTone) {      
-				const toneId = selectedTone.value;      
-				startLoop(tones[toneId].freq, `row${row}`);    
-			}   
-		});	
-	});
-}
 
 // Eventlistener für Radiobuttons, Loop starten
 /*document.getElementById('radioTon11').addEventListener('click', () => {

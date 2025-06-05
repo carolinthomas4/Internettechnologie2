@@ -42,3 +42,7 @@
 .close:hover {
 	color: #000;
 }
+
+#modalText {  
+	text-align: justify;
+}
